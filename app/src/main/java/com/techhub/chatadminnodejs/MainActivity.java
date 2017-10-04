@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbarmhc;
     RecyclerView recyclerViewnhantin;
     NavigationView navigationView;
-    ListView listViewmenutinnhan;
+    ListView listViewmenumhc;
     DrawerLayout drawerLayout;
 
     @Override
@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
         Anhxa();
         Actionbar();
+
     }
 
     private void Actionbar() {
@@ -42,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void Anhxa() {
         toolbarmhc=(Toolbar)findViewById(R.id.toolbarmhc);
-        recyclerViewnhantin=(RecyclerView)findViewById(R.id.rclmainchat);
-        listViewmenutinnhan=(ListView)findViewById(R.id.lvmenutinnhan);
+        recyclerViewnhantin=(RecyclerView)findViewById(R.id.rclmainmhc);
+        listViewmenumhc=(ListView)findViewById(R.id.lvmenutrangchu);
         navigationView=(NavigationView)findViewById(R.id.navigationview);
         drawerLayout=(DrawerLayout)findViewById(R.id.drawerlayout);
     }

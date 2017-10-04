@@ -21,7 +21,7 @@
                 android:id="@+id/appbarmhc"
                 android:layout_height="wrap_content">
             <android.support.v7.widget.Toolbar
-                app:title="Tin nhắn"
+                app:title="Trang chủ"
                 app:titleTextColor="#ffffff"
                 android:background="#263da1"
                 android:id="@+id/toolbarmhc"
@@ -32,40 +32,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
             <android.support.v7.widget.RecyclerView
-                android:layout_above="@+id/lntextsend"
-                android:id="@+id/rclmainchat"
-                android:clipToPadding="false"
-                android:divider="@null"
+                android:id="@+id/rclmainmhc"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
-            <LinearLayout
-                android:background="#8e8b86"
-                android:layout_alignParentBottom="true"
-                android:id="@+id/lntextsend"
-                android:gravity="center_vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
-                <ImageView
-                    android:padding="5dp"
-                    android:alpha="0.5"
-                    android:src="@drawable/iocnimagenormal"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp" />
-                <EditText
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:inputType="text"/>
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Send"
-                    android:textAllCaps="false"
-                    />
 
-            </LinearLayout>
             </RelativeLayout>
         </LinearLayout>
         <android.support.design.widget.NavigationView
@@ -75,7 +45,7 @@
 
             android:layout_height="match_parent">
             <ListView
-                android:id="@+id/lvmenutinnhan"
+                android:id="@+id/lvmenutrangchu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
