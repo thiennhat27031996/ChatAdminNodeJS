@@ -1,6 +1,7 @@
 package com.techhub.chatadminnodejs;
 
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -15,9 +16,14 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.firebase.ui.database.FirebaseListAdapter;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.engineio.client.Socket;
 import com.github.nkzawa.socketio.client.IO;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.techhub.chatadminnodejs.Adapter.MessageAdapter;
 import com.techhub.chatadminnodejs.OBJ.Message;
 
@@ -38,6 +44,9 @@ public class ChatActivity extends AppCompatActivity {
     EditText edtnoidungtinnhanjv;
     Button btnguitinnhanjv;
 
+    private static int SING_INREQ=1;
+private FirebaseListAdapter<Message> messageFirebaseListAdapter;
+
     ArrayList<String> mangusername;
     ArrayList<Message> mangchat;
     MessageAdapter messageAdapter;
@@ -56,13 +65,46 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         Anhxa();
-        ConnectSocketio();
+        Firebase();
+       // ConnectSocketio();
         Actionbar();
+    }
+
+    private void Firebase() {
+
+        btnguitinnhanjv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseDatabase.getInstance().getReference().push().setValue(new Message("Admin",edtnoidungtinnhanjv.getText().toString(),true));
+            }
+        });
+
+
+
+        displayChatmesage();
+
+
+
+    }
+
+    private void displayChatmesage() {
+
+        messageFirebaseListAdapter=new FirebaseListAdapter<Message>(this,Message.class,R.layout.item_rclmainmhc,FirebaseDatabase.getInstance().getReference()) {
+            @Override
+            protected void populateView(View v, Message model, int position) {
+                //get  data
+
+            }
+        };
+
+
     }
 
     private void ConnectSocketio() {
