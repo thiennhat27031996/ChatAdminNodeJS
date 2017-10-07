@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "794474883850",
+    "firebase_url": "https://appchattechhub.firebaseio.com",
+    "project_id": "appchattechhub",
+    "storage_bucket": "appchattechhub.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:794474883850:android:b799096128440135",
+        "android_client_info": {
+          "package_name": "com.techhub.chatadminnodejs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "794474883850-58jcs2e1gvlr6ivlp77f48litv070lt2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAeoslPH_gWBqGBxsGc_Utoc5UFaH4M9vk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

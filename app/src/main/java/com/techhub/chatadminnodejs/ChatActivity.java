@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseListAdapter;
@@ -23,6 +24,7 @@ import com.github.nkzawa.socketio.client.IO;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.techhub.chatadminnodejs.Adapter.MessageAdapter;
 import com.techhub.chatadminnodejs.OBJ.Message;
@@ -39,19 +41,19 @@ public class ChatActivity extends AppCompatActivity {
     Toolbar toolbarmhchat;
     RecyclerView recyclerViewnhantin;
     NavigationView navigationViewchat;
-    ListView listViewmenutinnhan;
+    ListView listViewmenutinnhan,lv;
     DrawerLayout drawerLayoutchat;
     EditText edtnoidungtinnhanjv;
     Button btnguitinnhanjv;
 
-    private static int SING_INREQ=1;
-private FirebaseListAdapter<Message> messageFirebaseListAdapter;
 
     ArrayList<String> mangusername;
     ArrayList<Message> mangchat;
     MessageAdapter messageAdapter;
     String adminuser="Admin";
     String usn="";
+
+    DatabaseReference root;
 
 
 
@@ -79,33 +81,34 @@ private FirebaseListAdapter<Message> messageFirebaseListAdapter;
 
     private void Firebase() {
 
+        root = FirebaseDatabase.getInstance().getReference();
         btnguitinnhanjv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseDatabase.getInstance().getReference().push().setValue(new Message("Admin",edtnoidungtinnhanjv.getText().toString(),true));
+                String chat=edtnoidungtinnhanjv.getText().toString();
+                root.push().setValue(chat);
             }
         });
-
-
-
-        displayChatmesage();
-
-
-
-    }
-
-    private void displayChatmesage() {
-
-        messageFirebaseListAdapter=new FirebaseListAdapter<Message>(this,Message.class,R.layout.item_rclmainmhc,FirebaseDatabase.getInstance().getReference()) {
+        //lay string tren dtb
+        FirebaseListAdapter<String> adapter=new FirebaseListAdapter<String>(this,String.class,R.layout.item_rclmainmhc,root) {
             @Override
-            protected void populateView(View v, Message model, int position) {
-                //get  data
+            protected void populateView(View v, String model, int position) {
+                TextView textView=(TextView)v.findViewById(R.id.textnguoigui);
+                textView.setText(model);
 
             }
         };
+        lv.setAdapter(adapter);
+
+
+
+
+
 
 
     }
+
+
 
     private void ConnectSocketio() {
         mSocket.connect();
@@ -235,14 +238,15 @@ private FirebaseListAdapter<Message> messageFirebaseListAdapter;
         drawerLayoutchat=(DrawerLayout)findViewById(R.id.drawerlayoutchat);
         edtnoidungtinnhanjv=(EditText)findViewById(R.id.edtnoidungtinnhan);
         btnguitinnhanjv=(Button)findViewById(R.id.btnguitinnhan);
+        lv=(ListView)findViewById(R.id.lv);
         recyclerViewnhantin.setHasFixedSize(true);
         recyclerViewnhantin.setLayoutManager(new GridLayoutManager(getApplicationContext(),1));
 
 
         mangchat=new ArrayList<>();
-        messageAdapter=new MessageAdapter(mangchat,getApplicationContext());
+       // messageAdapter=new MessageAdapter(mangchat,getApplicationContext());
         mangusername=new ArrayList<String>();
-        recyclerViewnhantin.setAdapter(messageAdapter);
+       // recyclerViewnhantin.setAdapter(messageAdapter);
 
 
 

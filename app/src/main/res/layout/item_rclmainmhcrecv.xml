@@ -10,14 +10,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:padding="8dp"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true"
 
 
-        app:bl_arrowDirection="right"
+        app:bl_arrowDirection="left"
         app:bl_arrowHeight="8dp"
         app:bl_arrowPosition="12dp"
         app:bl_arrowWidth="8dp"
-        app:bl_bubbleColor="@android:color/holo_blue_light"
+        app:bl_bubbleColor="#c6b8b8"
         app:bl_cornersRadius="8dp">
 
         <LinearLayout
