@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "794474883850-152h5jamdpj48r9o0cpnrb2mkqu3ciej.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.techhub.chatadminnodejs",
+            "certificate_hash": "986582979f7d3571e3ff0f14cab03d62210487eb"
+          }
+        },
+        {
           "client_id": "794474883850-58jcs2e1gvlr6ivlp77f48litv070lt2.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "794474883850-58jcs2e1gvlr6ivlp77f48litv070lt2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

@@ -33,25 +33,28 @@
                 android:layout_height="match_parent">
             <ListView
                 android:id="@+id/lvmhc"
-                android:layout_above="@+id/lnedt"
+
+                android:layout_above="@+id/rlabo"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"></ListView>
-                <LinearLayout
-                    android:id="@+id/lnedt"
+
+                <RelativeLayout
                     android:layout_alignParentBottom="true"
+                    android:id="@+id/rlabo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                    <EditText
-                        android:id="@+id/edttenphong"
-                        android:layout_width="0dp"
-                        android:layout_weight="2"
-                        android:layout_height="50dp" />
+                <Button
+                    android:id="@+id/btnsend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="btnsend"/>
                     <Button
-                        android:id="@+id/btnthemphong"
+                        android:id="@+id/btncancel"
+                        android:layout_alignParentRight="true"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="them phong"/>
-                </LinearLayout>
+                        android:text="cancel"/>
+                </RelativeLayout>
 
             </RelativeLayout>
         </LinearLayout>

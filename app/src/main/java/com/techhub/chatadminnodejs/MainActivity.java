@@ -18,11 +18,15 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,12 +43,16 @@ public class MainActivity extends AppCompatActivity {
     NavigationView navigationView;
     ListView listViewmenumhc,lvphong;
     DrawerLayout drawerLayout;
-    Button btnaddrom;
-    EditText edttenphong;
+    Button btnsend,btncancel;
     private ArrayAdapter<String> arrayAdapter;
     private ArrayList<String> list_of_room=new ArrayList<>();
     private String name;
+    private DatabaseReference mNotificationDatabase;
     private DatabaseReference root= FirebaseDatabase.getInstance().getReference().child("Message");
+    private DatabaseReference mUserDatabase;
+    private DatabaseReference mdatasend;
+    private FirebaseUser mCurenuser;
+    private FirebaseAuth mAuth;
 
 
 
@@ -55,8 +63,47 @@ public class MainActivity extends AppCompatActivity {
 
         Anhxa();
         Actionbar();
+        getTokenid();
 
 
+
+
+    }
+
+    private void getTokenid() {
+
+        mCurenuser=FirebaseAuth.getInstance().getCurrentUser();
+        mdatasend=FirebaseDatabase.getInstance().getReference().child("notifications");
+
+        String deviceToken= FirebaseInstanceId.getInstance().getToken();
+        mUserDatabase=FirebaseDatabase.getInstance().getReference().child("DeviceAndroid");
+        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+        final String current_user_id=currentFirebaseUser.getUid();
+
+        mUserDatabase.child(current_user_id).child("device_token").setValue(deviceToken);
+        mUserDatabase.child(current_user_id).child("user_id").setValue(current_user_id);
+
+
+        btnsend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                HashMap<String,String> notificationdata=new HashMap<String, String>();
+                notificationdata.put("from",mCurenuser.getUid());
+                notificationdata.put("type","request");
+
+               mdatasend.child("TBtJUSqLEuMFwpFqM1k4LkbWvkf1").push().setValue(notificationdata);
+
+
+            }
+        });
+        btncancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mdatasend.child("TBtJUSqLEuMFwpFqM1k4LkbWvkf1").removeValue();
+
+            }
+        });
 
 
     }
@@ -75,30 +122,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void Anhxa() {
+
+        btnsend=(Button)findViewById(R.id.btnsend);
+        btncancel=(Button)findViewById(R.id.btncancel);
         toolbarmhc=(Toolbar)findViewById(R.id.toolbarmhc);
+
+
+        //firebase
+        mNotificationDatabase=FirebaseDatabase.getInstance().getReference().child("notifications");
+
 
         listViewmenumhc=(ListView)findViewById(R.id.lvmenutrangchu);
         navigationView=(NavigationView)findViewById(R.id.navigationview);
         drawerLayout=(DrawerLayout)findViewById(R.id.drawerlayout);
         lvphong=(ListView)findViewById(R.id.lvmhc);
-        btnaddrom=(Button)findViewById(R.id.btnthemphong);
-        edttenphong=(EditText)findViewById(R.id.edttenphong);
 
         arrayAdapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,list_of_room);
         lvphong.setAdapter(arrayAdapter);
 
         request_username();
 
-        btnaddrom.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Map<String,Object> map=new HashMap<String,Object>();
-                map.put(edttenphong.getText().toString(),"");
-                root.updateChildren(map);
 
-
-            }
-        });
         root.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -131,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void request_username() {
         AlertDialog.Builder builder=new AlertDialog.Builder(this);
-        builder.setTitle("Enrername:");
+        builder.setTitle(FirebaseInstanceId.getInstance().getToken().toString());
         final EditText inputname=new EditText(this);
         builder.setView(inputname);
         builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
@@ -151,5 +195,7 @@ public class MainActivity extends AppCompatActivity {
         });
         builder.show();
     }
+
+
 
 }

@@ -93,6 +93,7 @@ public class ChatActivity extends AppCompatActivity {
         user_name=getIntent().getExtras().get("user_name").toString();
         room_name=getIntent().getExtras().get("room_name").toString();
         setTitle("Room -:"+room_name);
+        toolbarmhchat.setTitle(room_name);
         //lay data trong room
         root=FirebaseDatabase.getInstance().getReference().child("Message").child(room_name);
 
@@ -267,11 +268,10 @@ public class ChatActivity extends AppCompatActivity {
     private void Actionbar() {
         setSupportActionBar(toolbarmhchat);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbarmhchat.setNavigationIcon(android.R.drawable.ic_menu_sort_by_size);
         toolbarmhchat.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                drawerLayoutchat.openDrawer(GravityCompat.START);
+               finish();
 
             }
         });
