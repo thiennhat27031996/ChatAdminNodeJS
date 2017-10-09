@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
+    android:layout_marginRight="30dp"
     android:layout_alignParentRight="true"
     android:layout_height="wrap_content">
     <com.daasuu.bl.BubbleLayout
@@ -14,26 +15,27 @@
 
 
         app:bl_arrowDirection="left"
-        app:bl_arrowHeight="8dp"
-        app:bl_arrowPosition="12dp"
-        app:bl_arrowWidth="8dp"
-        app:bl_bubbleColor="#c6b8b8"
-        app:bl_cornersRadius="8dp">
+        app:bl_arrowHeight="10dp"
+        app:bl_arrowPosition="16dp"
+        app:bl_arrowWidth="10dp"
+        app:bl_bubbleColor="#dadadee9"
+        app:bl_cornersRadius="40dp">
 
         <LinearLayout
-            android:padding="10dp"
+            android:padding="5dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <TextView
 
+                android:textColor="#050505"
                 android:id="@+id/idnguoiguitin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="nguoi gui: "/>
             <TextView
-
+                android:textColor="#050505"
                 android:id="@+id/textnguoigui"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

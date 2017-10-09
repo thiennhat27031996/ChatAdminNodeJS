@@ -24,6 +24,9 @@ import com.github.nkzawa.socketio.client.IO;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.techhub.chatadminnodejs.Adapter.MessageAdapter;
@@ -32,28 +35,35 @@ import com.techhub.chatadminnodejs.OBJ.Message;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.lunainc.chatbar.ViewChatBar;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
     Toolbar toolbarmhchat;
     RecyclerView recyclerViewnhantin;
     NavigationView navigationViewchat;
-    ListView listViewmenutinnhan,lv;
+    ListView listViewmenutinnhan;
     DrawerLayout drawerLayoutchat;
-    EditText edtnoidungtinnhanjv;
-    Button btnguitinnhanjv;
+   // EditText edtnoidungtinnhanjv;
+   // Button btnguitinnhanjv;
+    ViewChatBar chatbar;
 
 
     ArrayList<String> mangusername;
     ArrayList<Message> mangchat;
     MessageAdapter messageAdapter;
     String adminuser="Admin";
-    String usn="";
+    private String user_name,room_name,temp_key;
+    private DatabaseReference root;
 
-    DatabaseReference root;
+
+
 
 
 
@@ -80,31 +90,81 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void Firebase() {
+        user_name=getIntent().getExtras().get("user_name").toString();
+        room_name=getIntent().getExtras().get("room_name").toString();
+        setTitle("Room -:"+room_name);
+        //lay data trong room
+        root=FirebaseDatabase.getInstance().getReference().child("Message").child(room_name);
 
-        root = FirebaseDatabase.getInstance().getReference();
-        btnguitinnhanjv.setOnClickListener(new View.OnClickListener() {
+
+        chatbar.setSendClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                String chat=edtnoidungtinnhanjv.getText().toString();
-                root.push().setValue(chat);
+            public void onClick(View view) {
+                Map<String,Object> map=new HashMap<String,Object>();
+                temp_key=root.push().getKey();
+                root.updateChildren(map);
+
+                DatabaseReference message_root=root.child(temp_key);
+                Map<String,Object> map2=new HashMap<String,Object>();
+                map2.put("name",user_name);
+                map2.put("msg",chatbar.getMessageText());
+                message_root.updateChildren(map2);
+                chatbar.setClearMessage(true);
+
             }
         });
-        //lay string tren dtb
-        FirebaseListAdapter<String> adapter=new FirebaseListAdapter<String>(this,String.class,R.layout.item_rclmainmhc,root) {
+
+        root.addChildEventListener(new ChildEventListener() {
             @Override
-            protected void populateView(View v, String model, int position) {
-                TextView textView=(TextView)v.findViewById(R.id.textnguoigui);
-                textView.setText(model);
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                append_chat_conver(dataSnapshot);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                append_chat_conver(dataSnapshot);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
 
             }
-        };
-        lv.setAdapter(adapter);
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
 
 
+    }
+    private String chat_msg,chat_user_name;
+    private void append_chat_conver(DataSnapshot dataSnapshot){
+        Iterator i=dataSnapshot.getChildren().iterator();
+        while(i.hasNext()){
+            chat_msg=(String)((DataSnapshot)i.next()).getValue();
+            chat_user_name=(String)((DataSnapshot)i.next()).getValue();
+            if(chat_user_name.equals("a")){
+                Message message1=new Message(chat_user_name,chat_msg,true);
+                mangchat.add(message1);
+            }
+            else{
+                Message message1=new Message(chat_user_name,chat_msg,false);
+                mangchat.add(message1);
+
+            }
+            messageAdapter.notifyDataSetChanged();
+
+            recyclerViewnhantin.scrollToPosition(messageAdapter.getItemCount()-1);
 
 
-
+        }
 
     }
 
@@ -118,24 +178,11 @@ public class ChatActivity extends AppCompatActivity {
 
         mSocket.emit("clientguiuser",adminuser);
 
-        btnguitinnhanjv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                mSocket.emit("clienguichat",edtnoidungtinnhanjv.getText().toString());
 
 
 
 
 
-
-
-
-
-
-
-            }
-        });
     }
 
 
@@ -155,19 +202,19 @@ public class ChatActivity extends AppCompatActivity {
                         id=data.getString("idchat");
                         Toast.makeText(getApplicationContext(),noidung.toString()+id.toString(),Toast.LENGTH_LONG).show();
 
-                        if(!noidung.toString().equals(edtnoidungtinnhanjv.getText().toString())){
+                        /*if(!noidung.toString().equals(edtnoidungtinnhanjv.getText().toString())){
                             Message message=new Message(id,noidung,false);
                             mangchat.add(message);
 
                         }
                         else{
-                            Message message1=new Message("Admin : ",edtnoidungtinnhanjv.getText().toString(),true);
-                            mangchat.add(message1);
+                           // Message message1=new Message("Admin : ",edtnoidungtinnhanjv.getText().toString(),true);
+                           // mangchat.add(message1);
 
-                        }
+                        }*/
                         messageAdapter.notifyDataSetChanged();
 
-                        edtnoidungtinnhanjv.setText("");
+                      //  edtnoidungtinnhanjv.setText("");
                         recyclerViewnhantin.scrollToPosition(messageAdapter.getItemCount()-1);
 
 
@@ -236,17 +283,18 @@ public class ChatActivity extends AppCompatActivity {
         listViewmenutinnhan=(ListView)findViewById(R.id.lvmenutinnhan);
         navigationViewchat=(NavigationView)findViewById(R.id.navigationviewchat);
         drawerLayoutchat=(DrawerLayout)findViewById(R.id.drawerlayoutchat);
-        edtnoidungtinnhanjv=(EditText)findViewById(R.id.edtnoidungtinnhan);
-        btnguitinnhanjv=(Button)findViewById(R.id.btnguitinnhan);
-        lv=(ListView)findViewById(R.id.lv);
+
         recyclerViewnhantin.setHasFixedSize(true);
         recyclerViewnhantin.setLayoutManager(new GridLayoutManager(getApplicationContext(),1));
+        chatbar=(ViewChatBar) findViewById(R.id.chatbar);
+        chatbar.setMessageBoxHint("Aa");
+
 
 
         mangchat=new ArrayList<>();
-       // messageAdapter=new MessageAdapter(mangchat,getApplicationContext());
+        messageAdapter=new MessageAdapter(mangchat,getApplicationContext());
         mangusername=new ArrayList<String>();
-       // recyclerViewnhantin.setAdapter(messageAdapter);
+        recyclerViewnhantin.setAdapter(messageAdapter);
 
 
 
