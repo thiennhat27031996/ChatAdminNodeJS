@@ -62,11 +62,6 @@ public class ChatActivity extends AppCompatActivity {
     private String user_name,room_name,temp_key;
     private DatabaseReference root;
 
-
-
-
-
-
     private com.github.nkzawa.socketio.client.Socket mSocket;
     {
         try{
@@ -75,6 +70,11 @@ public class ChatActivity extends AppCompatActivity {
         }catch (URISyntaxException e){}
 
     }
+
+
+
+
+
 
 
 

@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.github.nkzawa.socketio.client.IO;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,6 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,12 +49,21 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<String> arrayAdapter;
     private ArrayList<String> list_of_room=new ArrayList<>();
     private String name;
-    private DatabaseReference mNotificationDatabase;
     private DatabaseReference root= FirebaseDatabase.getInstance().getReference().child("Message");
     private DatabaseReference mUserDatabase;
     private DatabaseReference mdatasend;
-    private FirebaseUser mCurenuser;
-    private FirebaseAuth mAuth;
+
+
+    private com.github.nkzawa.socketio.client.Socket mSocket;
+    {
+        try{
+            mSocket= IO.socket("http://192.168.56.1:3000");
+
+        }catch (URISyntaxException e){}
+
+    }
+
+
 
 
 
@@ -72,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getTokenid() {
 
-        mCurenuser=FirebaseAuth.getInstance().getCurrentUser();
+
         mdatasend=FirebaseDatabase.getInstance().getReference().child("notifications");
 
         String deviceToken= FirebaseInstanceId.getInstance().getToken();
@@ -80,8 +91,8 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
         final String current_user_id=currentFirebaseUser.getUid();
 
-        mUserDatabase.child(current_user_id).child("device_token").setValue(deviceToken);
-        mUserDatabase.child(current_user_id).child("user_id").setValue(current_user_id);
+        mUserDatabase.child("FUpw5b-d4Hv9v8DvAAAB").child("device_token").setValue(deviceToken);
+        mUserDatabase.child("FUpw5b-d4Hv9v8DvAAAB").child("user_id").setValue("FUpw5b-d4Hv9v8DvAAAB");
 
 
         btnsend.setOnClickListener(new View.OnClickListener() {
@@ -89,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 HashMap<String,String> notificationdata=new HashMap<String, String>();
-                notificationdata.put("from",mCurenuser.getUid());
+                notificationdata.put("from","FUpw5b-d4Hv9v8DvAAAB");
                 notificationdata.put("type","request");
 
                mdatasend.child("TBtJUSqLEuMFwpFqM1k4LkbWvkf1").push().setValue(notificationdata);
@@ -129,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //firebase
-        mNotificationDatabase=FirebaseDatabase.getInstance().getReference().child("notifications");
+
 
 
         listViewmenumhc=(ListView)findViewById(R.id.lvmenutrangchu);
