@@ -61,11 +61,12 @@ public class ChatActivity extends AppCompatActivity {
     String adminuser="Admin";
     private String user_name,room_name,temp_key;
     private DatabaseReference root;
+    private DatabaseReference online;
 
     private com.github.nkzawa.socketio.client.Socket mSocket;
     {
         try{
-            mSocket= IO.socket("http://192.168.56.1:3000");
+            mSocket= IO.socket("http://192.168.0.105:3000");
 
         }catch (URISyntaxException e){}
 
@@ -85,17 +86,18 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
         Anhxa();
         Firebase();
-       // ConnectSocketio();
+        ConnectSocketio();
         Actionbar();
     }
 
     private void Firebase() {
-        user_name=getIntent().getExtras().get("user_name").toString();
-        room_name=getIntent().getExtras().get("room_name").toString();
+
+        room_name=getIntent().getExtras().get("from_user_id").toString();
         setTitle("Room -:"+room_name);
         toolbarmhchat.setTitle(room_name);
         //lay data trong room
         root=FirebaseDatabase.getInstance().getReference().child("Message").child(room_name);
+        online=FirebaseDatabase.getInstance().getReference().child("Client").child(room_name);
 
 
         chatbar.setSendClickListener(new View.OnClickListener() {
@@ -111,19 +113,56 @@ public class ChatActivity extends AppCompatActivity {
                 map2.put("msg",chatbar.getMessageText());
                 message_root.updateChildren(map2);
                 chatbar.setClearMessage(true);
+              //  Toast.makeText(getApplicationContext(),temp_key,Toast.LENGTH_LONG).show();
+
 
             }
         });
+
+
+
+        online.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                checkonline(dataSnapshot);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
 
         root.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 append_chat_conver(dataSnapshot);
+
+
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 append_chat_conver(dataSnapshot);
+
             }
 
             @Override
@@ -145,13 +184,28 @@ public class ChatActivity extends AppCompatActivity {
 
 
     }
+    private String clientkey_push,client_user_id;
+    private String client_online;
+    private void checkonline(DataSnapshot dataSnapshot){
+        Iterator i=dataSnapshot.getChildren().iterator();
+        while(i.hasNext()){
+            clientkey_push=(String)((DataSnapshot)i.next()).getValue();
+            client_online=(String)((DataSnapshot)i.next()).getValue();
+            client_user_id=(String)((DataSnapshot)i.next()).getValue();
+            if(client_online !=null && client_online!="true"){
+                Toast.makeText(getApplicationContext(),"user đã thoát",Toast.LENGTH_LONG).show();
+            }
+        }
+
+
+    }
     private String chat_msg,chat_user_name;
     private void append_chat_conver(DataSnapshot dataSnapshot){
         Iterator i=dataSnapshot.getChildren().iterator();
         while(i.hasNext()){
             chat_msg=(String)((DataSnapshot)i.next()).getValue();
             chat_user_name=(String)((DataSnapshot)i.next()).getValue();
-            if(chat_user_name.equals("a")){
+            if(chat_user_name.equals("Admin")){
                 Message message1=new Message(chat_user_name,chat_msg,true);
                 mangchat.add(message1);
             }
@@ -174,10 +228,10 @@ public class ChatActivity extends AppCompatActivity {
     private void ConnectSocketio() {
         mSocket.connect();
 
-        mSocket.on("svguiusn",onNew_dsusn);
-        mSocket.on("serverguichat",onNew_guitinchat);
+       // mSocket.on("svguiusn",onNew_dsusn);
+        //mSocket.on("serverguichat",onNew_guitinchat);
 
-        mSocket.emit("clientguiuser",adminuser);
+
 
 
 
@@ -288,6 +342,7 @@ public class ChatActivity extends AppCompatActivity {
         recyclerViewnhantin.setLayoutManager(new GridLayoutManager(getApplicationContext(),1));
         chatbar=(ViewChatBar) findViewById(R.id.chatbar);
         chatbar.setMessageBoxHint("Aa");
+        user_name="Admin";
 
 
 

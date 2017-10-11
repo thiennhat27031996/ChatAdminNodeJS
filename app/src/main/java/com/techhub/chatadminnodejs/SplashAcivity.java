@@ -44,14 +44,15 @@ public class SplashAcivity extends AppCompatActivity {
         btnlogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String usn=edtmail.getText().toString();
-                String pass=edtpass.getText().toString();
-                resger( usn, pass);
+
 
 
 
             }
         });
+        String usn="thiennhat27031996@gmail.com";//edtmail.getText().toString();
+        String pass="1312131213";//edtpass.getText().toString();
+        resger( usn, pass);
 
 
 

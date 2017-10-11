@@ -29,6 +29,7 @@
             android:layout_height="match_parent">
             <TextView
 
+                android:visibility="gone"
                 android:textColor="#050505"
                 android:id="@+id/idnguoiguitin"
                 android:layout_width="wrap_content"
