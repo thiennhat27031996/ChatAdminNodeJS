@@ -17,7 +17,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.nkzawa.socketio.client.IO;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -29,9 +28,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.techhub.chatadminnodejs.Adapter.ListUserMessageAdapter;
-import com.techhub.chatadminnodejs.OBJ.Message;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -46,12 +42,10 @@ public class MainActivity extends AppCompatActivity {
 
     Toolbar toolbarmhc;
 
-    ArrayList<Message> arrayListusermess;
-    ListUserMessageAdapter listUserMessageAdapter;
-
     NavigationView navigationView;
     ListView listViewmenumhc,lvphong;
     DrawerLayout drawerLayout;
+
     private ArrayAdapter<String> arrayAdapter;
     private ArrayList<String> list_of_room=new ArrayList<>();
     private String name;
@@ -97,9 +91,12 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
         final String current_user_id=currentFirebaseUser.getUid();
 
-        mUserDatabase.child(current_user_id).child("device_token").setValue(deviceToken);
-        mUserDatabase.child(current_user_id).child("user_id").setValue(current_user_id);
+        mUserDatabase.child("FUpw5b-d4Hv9v8DvAAAB").child("device_token").setValue(deviceToken);
+        mUserDatabase.child("FUpw5b-d4Hv9v8DvAAAB").child("user_id").setValue("FUpw5b-d4Hv9v8DvAAAB");
 
+
+        //remove
+        //mdatasend.child("TBtJUSqLEuMFwpFqM1k4LkbWvkf1").removeValue();
 
 
 
@@ -121,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void Anhxa() {
 
+
         toolbarmhc=(Toolbar)findViewById(R.id.toolbarmhc);
 
 
@@ -133,10 +131,8 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout=(DrawerLayout)findViewById(R.id.drawerlayout);
         lvphong=(ListView)findViewById(R.id.lvmhc);
 
-        arrayListusermess=new ArrayList<>();
-        listUserMessageAdapter=new ListUserMessageAdapter(arrayListusermess,getApplicationContext());
-
-        lvphong.setAdapter(listUserMessageAdapter);
+        arrayAdapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,list_of_room);
+        lvphong.setAdapter(arrayAdapter);
 
         request_username();
 
@@ -147,12 +143,12 @@ public class MainActivity extends AppCompatActivity {
 
                 Set<String> set=new HashSet<String>();
                 Iterator i=dataSnapshot.getChildren().iterator();
-                arrayListusermess.clear();
                 while(i.hasNext()){
-                    arrayListusermess.add(new Message(((DataSnapshot)i.next()).getKey(),"",true));
+                    set.add(((DataSnapshot)i.next()).getKey());
                 }
-
-                listUserMessageAdapter.notifyDataSetChanged();
+                list_of_room.clear();
+                list_of_room.addAll(set);
+                arrayAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -163,17 +159,35 @@ public class MainActivity extends AppCompatActivity {
         lvphong.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-               Intent intent=new Intent(getApplicationContext(),ChatActivity.class);
-                intent.putExtra("from_user_id",arrayListusermess.get(i).getTenUser());
+                Intent intent=new Intent(getApplicationContext(),ChatActivity.class);
+                intent.putExtra("room_name",((TextView)view).getText().toString());
                 intent.putExtra("user_name",name);
                 startActivity(intent);
-                //Toast.makeText(getApplicationContext(),,Toast.LENGTH_LONG).show();
             }
         });
     }
 
     private void request_username() {
-        name="Admin";
+        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+        builder.setTitle(FirebaseInstanceId.getInstance().getToken().toString());
+        final EditText inputname=new EditText(this);
+        builder.setView(inputname);
+        builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+                name=inputname.getText().toString();
+            }
+        });
+        builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+                request_username();
+
+            }
+        });
+        builder.show();
     }
 
 
