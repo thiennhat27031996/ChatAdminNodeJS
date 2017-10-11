@@ -1,5 +1,6 @@
 package com.techhub.chatadminnodejs;
 
+import android.content.Intent;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
@@ -29,8 +30,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.techhub.chatadminnodejs.Adapter.ListUserMessageAdapter;
 import com.techhub.chatadminnodejs.Adapter.MessageAdapter;
+import com.techhub.chatadminnodejs.ClassUse.CheckinternetToat;
 import com.techhub.chatadminnodejs.OBJ.Message;
+import com.techhub.chatadminnodejs.OBJ.MessageSeen;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,18 +59,23 @@ public class ChatActivity extends AppCompatActivity {
     ViewChatBar chatbar;
 
 
+
     ArrayList<String> mangusername;
     ArrayList<Message> mangchat;
     MessageAdapter messageAdapter;
     String adminuser="Admin";
-    private String user_name,room_name,temp_key;
+    private String user_name,room_name,temp_key,temp_keyroot2;
     private DatabaseReference root;
+    private DatabaseReference rootmessen;
     private DatabaseReference online;
+    static boolean chatactivitytofiticlick=false;
+    static String chatactivitinottyfi;
+    private int index=0;
 
     private com.github.nkzawa.socketio.client.Socket mSocket;
     {
         try{
-            mSocket= IO.socket("http://192.168.0.105:3000");
+            mSocket= IO.socket("http://192.13368.0.105:3000");
 
         }catch (URISyntaxException e){}
 
@@ -75,15 +84,12 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
-
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+
         Anhxa();
         Firebase();
         ConnectSocketio();
@@ -93,10 +99,14 @@ public class ChatActivity extends AppCompatActivity {
     private void Firebase() {
 
         room_name=getIntent().getExtras().get("from_user_id").toString();
+
         setTitle("Room -:"+room_name);
         toolbarmhchat.setTitle(room_name);
+        chatactivitinottyfi=toolbarmhchat.getTitle().toString();
+
         //lay data trong room
         root=FirebaseDatabase.getInstance().getReference().child("Message").child(room_name);
+        rootmessen=FirebaseDatabase.getInstance().getReference().child("MessageSeen").child(room_name);
         online=FirebaseDatabase.getInstance().getReference().child("Client").child(room_name);
 
 
@@ -104,14 +114,34 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Map<String,Object> map=new HashMap<String,Object>();
+
                 temp_key=root.push().getKey();
                 root.updateChildren(map);
-
                 DatabaseReference message_root=root.child(temp_key);
                 Map<String,Object> map2=new HashMap<String,Object>();
                 map2.put("name",user_name);
                 map2.put("msg",chatbar.getMessageText());
                 message_root.updateChildren(map2);
+
+
+
+
+
+
+                //rootsenn
+                Map<String,Object> map3=new HashMap<String,Object>();
+                temp_keyroot2=rootmessen.push().getKey();
+                rootmessen.updateChildren(map3);
+                DatabaseReference message_rootseen=rootmessen.child(temp_keyroot2);
+                Map<String,Object> map4=new HashMap<String,Object>();
+                map4.put("lastmessage",chatbar.getMessageText());
+                map4.put("name",user_name);
+                map4.put("seen","true");
+                map4.put("key",temp_keyroot2);
+                message_rootseen.updateChildren(map4);
+
+
+
                 chatbar.setClearMessage(true);
               //  Toast.makeText(getApplicationContext(),temp_key,Toast.LENGTH_LONG).show();
 
@@ -150,6 +180,35 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        rootmessen.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                append_chat_converseen(dataSnapshot);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                append_chat_converseen(dataSnapshot);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
 
         root.addChildEventListener(new ChildEventListener() {
             @Override
@@ -183,7 +242,23 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
+
     }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(MainActivity.Clickmenu==true) {
+            MainActivity.arrayListusermess.get(Integer.parseInt(getIntent().getExtras().get("index").toString())).setSeen(true);
+        }
+        else{
+
+
+        }
+       // rootmessen.child("")
+    }
+
     private String clientkey_push,client_user_id;
     private String client_online;
     private void checkonline(DataSnapshot dataSnapshot){
@@ -199,8 +274,10 @@ public class ChatActivity extends AppCompatActivity {
 
 
     }
-    private String chat_msg,chat_user_name;
+    private String chat_msg,chat_user_name,seen;
     private void append_chat_conver(DataSnapshot dataSnapshot){
+
+
         Iterator i=dataSnapshot.getChildren().iterator();
         while(i.hasNext()){
             chat_msg=(String)((DataSnapshot)i.next()).getValue();
@@ -225,8 +302,49 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
+
+
+
+    private void append_chat_converseen(DataSnapshot dataSnapshot){
+
+
+        Iterator i=dataSnapshot.getChildren().iterator();
+
+        while(i.hasNext()){
+            String key=(String)((DataSnapshot)i.next()).getValue();
+
+            chat_msg=(String)((DataSnapshot)i.next()).getValue();
+            chat_user_name=(String)((DataSnapshot)i.next()).getValue();
+            seen=(String)((DataSnapshot)i.next()).getValue();
+
+            if(MainActivity.Clickmenu==true) {
+                rootmessen.child(key).child("seen").setValue("true");
+
+                if (chat_user_name.equals("Admin")) {
+                    MainActivity.arrayListusermess.get(Integer.parseInt(getIntent().getExtras().get("index").toString())).setLastMess(chat_msg);
+                } else {
+                    MainActivity.arrayListusermess.get(Integer.parseInt(getIntent().getExtras().get("index").toString())).setLastMess(chat_msg);
+                }
+                MainActivity.listUserMessageAdapter.notifyDataSetChanged();
+            }
+            else{
+                rootmessen.child(key).child("seen").setValue("true");
+            }
+
+            }
+
+
+           // recyclerViewnhantin.scrollToPosition(messageAdapter.getItemCount()-1);
+
+
+        }
+
+
+
+
+
     private void ConnectSocketio() {
-        mSocket.connect();
+       // mSocket.connect();
 
        // mSocket.on("svguiusn",onNew_dsusn);
         //mSocket.on("serverguichat",onNew_guitinchat);
@@ -320,12 +438,22 @@ public class ChatActivity extends AppCompatActivity {
 
 
     private void Actionbar() {
+
         setSupportActionBar(toolbarmhchat);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbarmhchat.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               finish();
+                if(MainActivity.Clickmenu==true){
+
+                    finish();
+                }
+                else{
+                    chatactivitytofiticlick=true;
+                    Intent intent = new Intent(ChatActivity.this,MainActivity.class);
+                    startActivity(intent);
+                }
+
 
             }
         });
@@ -350,6 +478,10 @@ public class ChatActivity extends AppCompatActivity {
         messageAdapter=new MessageAdapter(mangchat,getApplicationContext());
         mangusername=new ArrayList<String>();
         recyclerViewnhantin.setAdapter(messageAdapter);
+
+
+
+
 
 
 

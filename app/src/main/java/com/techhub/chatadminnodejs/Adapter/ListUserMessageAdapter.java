@@ -2,6 +2,7 @@ package com.techhub.chatadminnodejs.Adapter;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.techhub.chatadminnodejs.OBJ.Message;
+import com.techhub.chatadminnodejs.OBJ.MessageSeen;
 import com.techhub.chatadminnodejs.R;
 
 import java.util.ArrayList;
@@ -18,10 +20,11 @@ import java.util.ArrayList;
  */
 
 public class ListUserMessageAdapter extends BaseAdapter {
-    ArrayList<Message> arrayListmess;
+    ArrayList<MessageSeen> arrayListmess;
     Context context;
 
-    public ListUserMessageAdapter(ArrayList<Message> arrayListmess, Context context) {
+
+    public ListUserMessageAdapter(ArrayList<MessageSeen> arrayListmess, Context context) {
         this.arrayListmess = arrayListmess;
         this.context = context;
     }
@@ -60,16 +63,18 @@ public class ListUserMessageAdapter extends BaseAdapter {
         }else{
             viewmessuser=(Viewmessuser)view.getTag();
         }
-        Message message=(Message)getItem(i);
-        viewmessuser.tvtenuser.setText(message.getTenUser());
-        viewmessuser.tvlastmessage.setText(message.getTinNhan());
+        MessageSeen messageSeen=(MessageSeen) getItem(i);
+        viewmessuser.tvtenuser.setText(messageSeen.getTenUser());
+        viewmessuser.tvlastmessage.setText(messageSeen.getLastMess());
 
 
 
-        if(message.isSend()){
+        if(messageSeen.isSeen()){
             viewmessuser.tvtenuser.setTypeface(Typeface.DEFAULT_BOLD);
+            viewmessuser.tvtenuser.setTextColor(ContextCompat.getColor(context, R.color.messSeen));
         }else{
             viewmessuser.tvtenuser.setTypeface(Typeface.DEFAULT);
+            viewmessuser.tvtenuser.setTextColor(ContextCompat.getColor(context, R.color.messSeenYet));
         }
 
         return view;
