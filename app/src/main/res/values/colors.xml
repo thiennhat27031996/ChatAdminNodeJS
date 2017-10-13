@@ -4,5 +4,6 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="messSeen">#747370</color>
-    <color name="messSeenYet">#ff0105</color>
+    <color name="messSeenYet">#000000</color>
+    <color name="messSeenYetlast">#d18f8a8a</color>
 </resources>

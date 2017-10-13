@@ -44,6 +44,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         resultIntent.putExtra("from_user_id",from_user_id);
 
 
+
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
                         this,
@@ -58,7 +59,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+        //mNotifyMgr.notify(mNotificationId, mBuilder.build());
 
     }
 }

@@ -3,6 +3,7 @@ package com.techhub.chatadminnodejs.Adapter;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,15 +67,20 @@ public class ListUserMessageAdapter extends BaseAdapter {
         MessageSeen messageSeen=(MessageSeen) getItem(i);
         viewmessuser.tvtenuser.setText(messageSeen.getTenUser());
         viewmessuser.tvlastmessage.setText(messageSeen.getLastMess());
+        viewmessuser.tvlastmessage.setMaxWidth(300);
+        viewmessuser.tvlastmessage.setMaxLines(1);
+        viewmessuser.tvlastmessage.setEllipsize(TextUtils.TruncateAt.END);
 
 
 
         if(messageSeen.isSeen()){
-            viewmessuser.tvtenuser.setTypeface(Typeface.DEFAULT_BOLD);
+            viewmessuser.tvtenuser.setTypeface(viewmessuser.tvtenuser.getTypeface(),Typeface.NORMAL);
             viewmessuser.tvtenuser.setTextColor(ContextCompat.getColor(context, R.color.messSeen));
+            viewmessuser.tvlastmessage.setTextColor(ContextCompat.getColor(context, R.color.messSeen));
         }else{
-            viewmessuser.tvtenuser.setTypeface(Typeface.DEFAULT);
+            viewmessuser.tvtenuser.setTypeface(viewmessuser.tvtenuser.getTypeface(),Typeface.BOLD);
             viewmessuser.tvtenuser.setTextColor(ContextCompat.getColor(context, R.color.messSeenYet));
+            viewmessuser.tvlastmessage.setTextColor(ContextCompat.getColor(context, R.color.messSeenYet));
         }
 
         return view;

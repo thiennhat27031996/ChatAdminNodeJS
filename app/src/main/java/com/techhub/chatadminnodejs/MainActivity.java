@@ -29,12 +29,15 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.techhub.chatadminnodejs.Adapter.ListUserMessageAdapter;
 import com.techhub.chatadminnodejs.ClassUse.CheckinternetToat;
 import com.techhub.chatadminnodejs.OBJ.Message;
 import com.techhub.chatadminnodejs.OBJ.MessageSeen;
+
+import org.jsoup.nodes.Comment;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -59,10 +62,14 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> list_of_room=new ArrayList<>();
     private String name;
     private DatabaseReference root= FirebaseDatabase.getInstance().getReference().child("Message");
-    private DatabaseReference messSeen=FirebaseDatabase.getInstance().getReference();
+    private DatabaseReference messSeen=FirebaseDatabase.getInstance().getReference().child("MessageSeen");
     private DatabaseReference mUserDatabase;
+    private DatabaseReference rootunread=FirebaseDatabase.getInstance().getReference().child("UnreadMessage");
     private DatabaseReference mdatasend;
     static boolean Clickmenu=false;
+    static boolean onstart=false;
+    static boolean onstop=false;
+    static boolean start=false;
 
 
 
@@ -75,7 +82,23 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        onstart=true;
+        onstop=false;
 
+    }
+
+    @Override
+    protected void onStop() {
+
+        super.onStop();
+        onstop=true;
+        onstart=false;
+
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,17 +106,460 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
+
+
         Anhxa();
         Actionbar();
         getTokenid();
 
 
+        Firebase2();
+        start=true;
+
+
+//        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
 
 
 
 
     }
+
+
+
+
+
+    private void dataFirebase2(final DataSnapshot dataSnapshot){
+
+
+
+        arrayListusermess.add(new MessageSeen(dataSnapshot.getKey(),"",false));
+        listUserMessageAdapter.notifyDataSetChanged();
+
+
+
+
+                                                                                                                                                    //CheckinternetToat.toastcheckinternet(MainActivity.this,newComment.toString());
+
+
+
+
+            }
+
+
+
+
+
+
+
+
+            //messSeen.child(dataSnapshot.getKey()).orderByKey().limitToLast(1).toString();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ private void Firebase2(){
+
+     messSeen.addChildEventListener(new ChildEventListener() {
+         @Override
+         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+             //thêm client mới là add
+             // arrayListusermess.clear();
+             dataFirebase2(dataSnapshot);
+             //childDataSnapshot.child(--ENTER THE KEY NAME eg. firstname or email etc.--).getValue());   //gives the value for given keyname
+             // }
+             //  getMesslast(dataSnapshot);
+
+
+
+         }
+
+         @Override
+         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            // dataFirebase2(dataSnapshot);
+             // arrayListusermess.clear();
+             //dataFirebase2(dataSnapshot);
+
+
+             //thêm tin nhắn mới là change
+
+
+
+         }
+
+         @Override
+         public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+         }
+
+         @Override
+         public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+         }
+
+         @Override
+         public void onCancelled(DatabaseError databaseError) {
+
+         }
+     });
+
+
+
+
+
+
+     rootunread.addChildEventListener(new ChildEventListener() {
+         @Override
+         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+         }
+
+         @Override
+         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+             for(int i=0;i<arrayListusermess.size();i++){
+                 if(arrayListusermess.get(i).getTenUser().equals(dataSnapshot.getKey())){
+                     final int vitri=i;
+                    // CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.getChildr);
+
+                     rootunread.child(dataSnapshot.getKey()).addChildEventListener(new ChildEventListener() {
+                         @Override
+                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                         }
+
+                         @Override
+                         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                             if(dataSnapshot.child("seen").getValue().toString().equals("true")){
+                                 arrayListusermess.get(vitri).setSeen(true);
+                             }else{
+                                 arrayListusermess.get(vitri).setSeen(false);
+                             }
+
+
+
+                         }
+
+                         @Override
+                         public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                         }
+
+                         @Override
+                         public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                         }
+
+                         @Override
+                         public void onCancelled(DatabaseError databaseError) {
+
+                         }
+                     });
+
+
+
+
+
+
+
+
+
+
+
+
+
+                     for (final DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
+
+
+                     }
+
+                 }
+             }
+
+
+         }
+
+         @Override
+         public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+         }
+
+         @Override
+         public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+         }
+
+         @Override
+         public void onCancelled(DatabaseError databaseError) {
+
+         }
+     });
+
+
+
+
+
+
+
+
+
+
+
+     rootunread.addValueEventListener(new ValueEventListener() {
+         @Override
+         public void onDataChange(DataSnapshot dataSnapshot) {
+             for (final DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
+                     rootunread.addChildEventListener(new ChildEventListener() {
+                         @Override
+                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                             for(int i = 0; i<arrayListusermess.size();i++) {
+
+                                 if (arrayListusermess.get(i).getTenUser().equals(dataSnapshot.getKey())) {
+                                     // CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.getKey());
+                                     final int vitri=i;
+                                     rootunread.child(arrayListusermess.get(vitri).getTenUser()).orderByKey().limitToLast(1).addChildEventListener(new ChildEventListener() {
+                                         @Override
+                                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                                             if(onstart==true && onstop==false) {
+                                                // rootunread.child(arrayListusermess.get(vitri).getTenUser()).child(dataSnapshot.getKey()).child("seen").setValue(false);
+                                               //  arrayListusermess.get(vitri).setSeen(false);
+                                                 //  CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.child("lastmessage").getValue().toString());
+                                                 if(dataSnapshot.child("seen").getValue().toString().equals("true")){
+                                                     arrayListusermess.get(vitri).setSeen(true);
+                                                 }
+                                                 else{
+                                                     arrayListusermess.get(vitri).setSeen(false);
+                                                 }
+
+
+                                                 arrayListusermess.get(vitri).setLastMess(dataSnapshot.child("lastmessage").getValue().toString());
+                                                 listUserMessageAdapter.notifyDataSetChanged();
+
+
+                                             }
+                                         }
+
+                                         @Override
+                                         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+
+
+                                         }
+
+                                         @Override
+                                         public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                                         }
+
+                                         @Override
+                                         public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                                         }
+
+                                         @Override
+                                         public void onCancelled(DatabaseError databaseError) {
+
+                                         }
+                                     });
+
+                                 }
+
+
+                             }
+
+
+
+
+
+                         }
+
+                         @Override
+                         public void onChildChanged(final DataSnapshot dataSnapshot1, String s) {
+                             for(int i = 0; i<arrayListusermess.size();i++) {
+                                 if (arrayListusermess.get(i).getTenUser().equals(dataSnapshot1.getKey())) {
+                                    // CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.getKey());
+                                    final int vitri=i;
+                                     rootunread.child(arrayListusermess.get(vitri).getTenUser()).orderByKey().limitToLast(1).addChildEventListener(new ChildEventListener() {
+                                         @Override
+                                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                                             if(onstart==true && onstop==false) {
+                                                 //rootunread.child(arrayListusermess.get(vitri).getTenUser()).child(dataSnapshot.getKey()).child("seen").setValue(false);
+                                                // arrayListusermess.get(vitri).setSeen(false);
+                                                 //  CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.child("lastmessage").getValue().toString());
+                                                 arrayListusermess.get(vitri).setLastMess(dataSnapshot.child("lastmessage").getValue().toString());
+                                                 listUserMessageAdapter.notifyDataSetChanged();
+                                             }
+
+                                         }
+
+                                         @Override
+                                         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                                             if(onstart==true && onstop==false) {
+                                                  rootunread.child(arrayListusermess.get(vitri).getTenUser()).child(dataSnapshot.getKey()).child("seen").setValue(false);
+                                                 arrayListusermess.get(vitri).setSeen(false);
+                                                 //  CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.child("lastmessage").getValue().toString());
+                                                 arrayListusermess.get(vitri).setLastMess(dataSnapshot.child("lastmessage").getValue().toString());
+                                                 listUserMessageAdapter.notifyDataSetChanged();
+                                             }
+
+                                         }
+
+                                         @Override
+                                         public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                                         }
+
+                                         @Override
+                                         public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                                         }
+
+                                         @Override
+                                         public void onCancelled(DatabaseError databaseError) {
+
+                                         }
+                                     });
+
+                                 }
+                             }
+
+
+                         }
+
+                         @Override
+                         public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                         }
+
+                         @Override
+                         public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                         }
+
+                         @Override
+                         public void onCancelled(DatabaseError databaseError) {
+
+                         }
+                     });//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+             }
+
+
+
+
+         }
+
+         @Override
+         public void onCancelled(DatabaseError databaseError) {
+
+         }
+     });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     lvphong.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+         @Override
+         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+             arrayListusermess.get(i).setSeen(true);
+             Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+             intent.putExtra("from_user_id", arrayListusermess.get(i).getTenUser());
+             intent.putExtra("user_name", name);
+             intent.putExtra("index",i);
+             startActivity(intent);
+             //Toast.makeText(getApplicationContext(),,Toast.LENGTH_LONG).show();
+         }
+     });
+
+
+
+
+
+ }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private void getTokenid() {
 
@@ -127,70 +593,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void getMesslast(final DataSnapshot dataSnapshot1){
-        messSeen.child("MessageSeen").child(dataSnapshot1.getKey()).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
 
-               // Toast.makeText(getApplicationContext(),dataSnapshot1.getKey(),Toast.LENGTH_LONG).show();
-                Iterator i=dataSnapshot.getChildren().iterator();
-
-                while(i.hasNext()){
-                    String keyseen=(String)((DataSnapshot)i.next()).getValue();
-
-                  String  chat_msg=(String)((DataSnapshot)i.next()).getValue();
-                   String chat_user_name=(String)((DataSnapshot)i.next()).getValue();
-                   String seen1=(String)((DataSnapshot)i.next()).getValue();
-
-
-
-                  //Toast.makeText(getApplicationContext(),chat_msg + ":" +chat_user_name+ ":"+seen1,Toast.LENGTH_LONG).show();
-                    for(int j=0;j<arrayListusermess.size();j++) {
-                        if (seen1.equals("true") && arrayListusermess.get(j).getTenUser().equals(dataSnapshot1.getKey())) {
-                            arrayListusermess.get(j).setLastMess(chat_msg);
-                            arrayListusermess.get(j).setSeen(true);
-                        }
-                       if( seen1.equals("false") && arrayListusermess.get(j).getTenUser().equals(dataSnapshot1.getKey())){
-                            arrayListusermess.get(j).setLastMess(chat_msg);
-                            arrayListusermess.get(j).setSeen(false);
-                        }else{
-
-                       }
-
-                        listUserMessageAdapter.notifyDataSetChanged();
-                    }
-
-                }
-
-
-
-                }
-
-
-
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
 
     private void Anhxa() {
 
@@ -212,137 +616,14 @@ public class MainActivity extends AppCompatActivity {
 
         request_username();
 
-        messSeen.child("MessageSeen").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                //arrayListusermess.clear();
-
-                arrayListusermess.add(new MessageSeen(dataSnapshot.getKey(),msg, true));
-                listUserMessageAdapter.notifyDataSetChanged();
-
-                //String tenuser=dataSnapshot.getKey();
-                //Toast.makeText(getApplicationContext(),dataSnapshot.getChildren().toString(),Toast.LENGTH_LONG).show();
-
-
-               getMesslast(dataSnapshot);
-
-
-
-
-
-
-
-
-                 /*String  chat_msg1=(String)((DataSnapshot)i.next()).getValue();
-                  String  chat_user_name1=(String)((DataSnapshot)i.next()).getValue();
-                  String  seen=(String)((DataSnapshot)i.next()).getValue();;
-
-                    if(seen.equals("true")){
-                        arrayListusermess.add(new MessageSeen(dataSnapshot.getKey(),chat_msg1, true));
-                    }else {
-                        arrayListusermess.add(new MessageSeen(dataSnapshot.getKey(),chat_msg1, false));
-                    }
-
-                    listUserMessageAdapter.notifyDataSetChanged();*/
-
-
-
-
-                // recyclerViewnhantin.scrollToPosition(messageAdapter.getItemCount()-1);
-
-
-
-
-
-
-                //Toast.makeText(getApplicationContext(),dataSnapshot.getKey(),Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                //arrayListusermess.clear();
-
-               // arrayListusermess.add(new MessageSeen(dataSnapshot.getKey(),msg, true));
-               // listUserMessageAdapter.notifyDataSetChanged();
-               // Toast.makeText(getApplicationContext(),dataSnapshot.getKey(),Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-
-       /* messSeen.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Set<String> set = new HashSet<String>();
-                Iterator i = dataSnapshot.getChildren().iterator();
-                arrayListusermess.clear();
-               // Toast.makeText(getApplicationContext(),((DataSnapshot) i.next()).getKey(),Toast.LENGTH_LONG).show();
-
-                while (i.hasNext()) {
-                    messSeen.child(((DataSnapshot) i.next()).getKey()).addChildEventListener(new ChildEventListener() {
-                        @Override
-                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                           // onchildchange(dataSnapshot);
-                            //onchild(dataSnapshot);
-                        }
-
-                        @Override
-                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                            onchild(dataSnapshot);
-                        }
-
-                        @Override
-                        public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                        }
-
-                        @Override
-                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-
-
-                }
-
-
-
-            }
-
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-
-
-        });*/
 
 
 
         lvphong.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                arrayListusermess.get(i).setSeen(true);
+
+                 arrayListusermess.get(i).setSeen(true);
                 Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
                 intent.putExtra("from_user_id", arrayListusermess.get(i).getTenUser());
                 intent.putExtra("user_name", name);
@@ -358,37 +639,14 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    }
-    String lasmes,msg,namea,seen;
 
-    private void  onchildchange(DataSnapshot dataSnapshot){
-        Iterator i=dataSnapshot.getChildren().iterator();
-        arrayListusermess.remove(dataSnapshot.getChildren());
-        while(i.hasNext()){
-            lasmes=(String)((DataSnapshot)i.next()).getValue();
-            msg=(String)((DataSnapshot)i.next()).getValue();
-            seen=(String)((DataSnapshot)i.next()).getValue();
 
-            arrayListusermess.add(new MessageSeen(namea,msg, true));
-            listUserMessageAdapter.notifyDataSetChanged();
-            Toast.makeText(getApplicationContext(),lasmes + ":" +msg+ ":"+seen,Toast.LENGTH_LONG).show();
-        }
 
     }
 
-    private void onchild(DataSnapshot dataSnapshot){
-        Iterator i=dataSnapshot.getChildren().iterator();
-        arrayListusermess.clear();
-        while(i.hasNext()){
 
-            namea=(String)((DataSnapshot)i.next()).getValue();
-            seen=(String)((DataSnapshot)i.next()).getValue();
-            lasmes=(String)((DataSnapshot)i.next()).getValue();
-            arrayListusermess.add(new MessageSeen(namea,lasmes, true));
-            listUserMessageAdapter.notifyDataSetChanged();
-            Toast.makeText(getApplicationContext(),lasmes +":"+seen+""+name,Toast.LENGTH_LONG).show();
-        }
-    }
+
+
 
 
     private void request_username() {

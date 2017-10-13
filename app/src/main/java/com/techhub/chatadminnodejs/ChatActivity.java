@@ -30,6 +30,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.techhub.chatadminnodejs.Adapter.ListUserMessageAdapter;
 import com.techhub.chatadminnodejs.Adapter.MessageAdapter;
 import com.techhub.chatadminnodejs.ClassUse.CheckinternetToat;
@@ -64,11 +65,16 @@ public class ChatActivity extends AppCompatActivity {
     ArrayList<Message> mangchat;
     MessageAdapter messageAdapter;
     String adminuser="Admin";
-    private String user_name,room_name,temp_key,temp_keyroot2;
+    private String user_name,room_name,temp_key,temp_keyroot2,room_namesv;
     private DatabaseReference root;
     private DatabaseReference rootmessen;
+    private DatabaseReference rootunread;
     private DatabaseReference online;
+    private DatabaseReference mdatasend;
+    private DatabaseReference mdoiseen;
     static boolean chatactivitytofiticlick=false;
+    static boolean onstop=false;
+    static boolean onstart=false;
     static String chatactivitinottyfi;
     private int index=0;
 
@@ -81,8 +87,24 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        onstop=true;
+        onstart=false;
+        Seenmethod();
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        onstart=true;
+        onstop=false;
+        Seenmethod();
 
 
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,43 +113,30 @@ public class ChatActivity extends AppCompatActivity {
 
 
         Anhxa();
-        Firebase();
+       // Firebase();
         ConnectSocketio();
         Actionbar();
+        Firebase2();
+
     }
 
-    private void Firebase() {
 
+
+
+
+    private void Firebase2(){
+//set title
         room_name=getIntent().getExtras().get("from_user_id").toString();
-
-        setTitle("Room -:"+room_name);
         toolbarmhchat.setTitle(room_name);
-        chatactivitinottyfi=toolbarmhchat.getTitle().toString();
-
         //lay data trong room
-        root=FirebaseDatabase.getInstance().getReference().child("Message").child(room_name);
-        rootmessen=FirebaseDatabase.getInstance().getReference().child("MessageSeen").child(room_name);
-        online=FirebaseDatabase.getInstance().getReference().child("Client").child(room_name);
+        rootmessen=FirebaseDatabase.getInstance().getReference().child("MessageSeen").child(toolbarmhchat.getTitle().toString());
+        rootunread=FirebaseDatabase.getInstance().getReference().child("UnreadMessage").child(toolbarmhchat.getTitle().toString());
+       // online=FirebaseDatabase.getInstance().getReference().child("Client").child(room_name);
 
-
+        //curent send mess
         chatbar.setSendClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Map<String,Object> map=new HashMap<String,Object>();
-
-                temp_key=root.push().getKey();
-                root.updateChildren(map);
-                DatabaseReference message_root=root.child(temp_key);
-                Map<String,Object> map2=new HashMap<String,Object>();
-                map2.put("name",user_name);
-                map2.put("msg",chatbar.getMessageText());
-                message_root.updateChildren(map2);
-
-
-
-
-
-
                 //rootsenn
                 Map<String,Object> map3=new HashMap<String,Object>();
                 temp_keyroot2=rootmessen.push().getKey();
@@ -135,60 +144,32 @@ public class ChatActivity extends AppCompatActivity {
                 DatabaseReference message_rootseen=rootmessen.child(temp_keyroot2);
                 Map<String,Object> map4=new HashMap<String,Object>();
                 map4.put("lastmessage",chatbar.getMessageText());
-                map4.put("name",user_name);
+                map4.put("name","Admin");
                 map4.put("seen","true");
                 map4.put("key",temp_keyroot2);
                 message_rootseen.updateChildren(map4);
 
-
-
                 chatbar.setClearMessage(true);
-              //  Toast.makeText(getApplicationContext(),temp_key,Toast.LENGTH_LONG).show();
-
-
+                //  Toast.makeText(getApplicationContext(),temp_key,Toast.LENGTH_LONG).show();
             }
         });
 
 
 
-        online.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                checkonline(dataSnapshot);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
         rootmessen.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                append_chat_converseen(dataSnapshot);
+                append_chat_converseen2(dataSnapshot);
+
+                unread(dataSnapshot);
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                append_chat_converseen(dataSnapshot);
+                append_chat_converseen2(dataSnapshot);
+                unread(dataSnapshot);
             }
 
             @Override
@@ -210,54 +191,195 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
-        root.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                append_chat_conver(dataSnapshot);
 
 
+
+    }
+
+    private void unread(final DataSnapshot dataSnapshot2) {
+        if(onstart==true && onstop==false) {
+            rootunread.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot1) {
+
+
+                    for (DataSnapshot childDataSnapshot : dataSnapshot1.getChildren()) {
+
+                        if (onstart == true && onstop == false && toolbarmhchat.getTitle().toString().equals(childDataSnapshot.child("name").getValue().toString())) {
+                            rootunread.orderByKey().limitToLast(1).addChildEventListener(new ChildEventListener() {
+                                @Override
+                                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                                    //CheckinternetToat.toastcheckinternet(ChatActivity.this,dataSnapshot.child("lastmessage").getValue().toString());
+                                    rootunread.child(dataSnapshot.getKey()).child("seen").setValue(true);
+
+                                }
+
+                                @Override
+                                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                                }
+
+                                @Override
+                                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                                }
+
+                                @Override
+                                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+
+                        }
+                        else{
+                            rootunread.orderByKey().limitToLast(1).addChildEventListener(new ChildEventListener() {
+                                @Override
+                                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                                    //CheckinternetToat.toastcheckinternet(ChatActivity.this,dataSnapshot.child("lastmessage").getValue().toString());
+                                    rootunread.child(dataSnapshot.getKey()).child("seen").setValue(false);
+
+                                }
+
+                                @Override
+                                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                                }
+
+                                @Override
+                                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                                }
+
+                                @Override
+                                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+    }
+
+    private void append_chat_converseen2(DataSnapshot dataSnapshot){
+
+        String tit=toolbarmhchat.getTitle().toString();
+            //CheckinternetToat.toastcheckinternet(ChatActivity.this,dataSnapshot.child("name").getValue().toString());
+            if(dataSnapshot.child("name").getValue().toString().equals("Admin")){
+                Message message1=new Message("",dataSnapshot.child("lastmessage").getValue().toString(),true);
+                mangchat.add(message1);
             }
 
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                append_chat_conver(dataSnapshot);
+            else{
+                if(MainActivity.onstop==true){
+                    for(int i=0;i<MainActivity.arrayListusermess.size();i++){
+                        if(MainActivity.arrayListusermess.get(i).equals(tit)){
+                            MainActivity.arrayListusermess.get(i).setLastMess(dataSnapshot.child("lastmessage").getValue().toString());
+                          //  MainActivity.arrayListusermess.get(i).setSeen(false);
+                            MainActivity.listUserMessageAdapter.notifyDataSetChanged();
+                        }
+                        else{
+
+                        }
+                    }
+                   // CheckinternetToat.toastcheckinternet(ChatActivity.this,"true");
+                }
+                else{
+                    //CheckinternetToat.toastcheckinternet(ChatActivity.this,"false");
+
+                }
+                Message message1=new Message("",dataSnapshot.child("lastmessage").getValue().toString(),false);
+                mangchat.add(message1);
 
             }
+            messageAdapter.notifyDataSetChanged();
 
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+            recyclerViewnhantin.scrollToPosition(messageAdapter.getItemCount()-1);
 
 
 
 
     }
 
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if(MainActivity.Clickmenu==true) {
-            MainActivity.arrayListusermess.get(Integer.parseInt(getIntent().getExtras().get("index").toString())).setSeen(true);
-        }
-        else{
+    private void Seenmethod() {
+        final String tool=toolbarmhchat.getTitle().toString();
+        mdatasend=FirebaseDatabase.getInstance().getReference().child("OnlineMess");
 
 
-        }
-       // rootmessen.child("")
-    }
+
+                //CheckinternetToat.toastcheckinternet(ChatActivity.this,dataSnapshot.child(tool).child("online").getValue().toString());
+
+                    if(onstop==true) {
+                        mdatasend.child(toolbarmhchat.getTitle().toString()).child("online").setValue(false);
+                    }else{
+                        mdatasend.child(toolbarmhchat.getTitle().toString()).child("online").setValue(true);
+                    }
+                    //CIntent intent = new Intent(MainActivity.this, ChatActivity.class);
+                    //startActivity(intent);
+                    //finish();
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private String clientkey_push,client_user_id;
     private String client_online;
@@ -274,70 +396,13 @@ public class ChatActivity extends AppCompatActivity {
 
 
     }
-    private String chat_msg,chat_user_name,seen;
-    private void append_chat_conver(DataSnapshot dataSnapshot){
-
-
-        Iterator i=dataSnapshot.getChildren().iterator();
-        while(i.hasNext()){
-            chat_msg=(String)((DataSnapshot)i.next()).getValue();
-            chat_user_name=(String)((DataSnapshot)i.next()).getValue();
-            if(chat_user_name.equals("Admin")){
-                Message message1=new Message(chat_user_name,chat_msg,true);
-                mangchat.add(message1);
-            }
-            else{
-                Message message1=new Message(chat_user_name,chat_msg,false);
-                mangchat.add(message1);
-
-            }
-            messageAdapter.notifyDataSetChanged();
-
-            recyclerViewnhantin.scrollToPosition(messageAdapter.getItemCount()-1);
-
-
-        }
-
-    }
 
 
 
 
 
 
-    private void append_chat_converseen(DataSnapshot dataSnapshot){
 
-
-        Iterator i=dataSnapshot.getChildren().iterator();
-
-        while(i.hasNext()){
-            String key=(String)((DataSnapshot)i.next()).getValue();
-
-            chat_msg=(String)((DataSnapshot)i.next()).getValue();
-            chat_user_name=(String)((DataSnapshot)i.next()).getValue();
-            seen=(String)((DataSnapshot)i.next()).getValue();
-
-            if(MainActivity.Clickmenu==true) {
-                rootmessen.child(key).child("seen").setValue("true");
-
-                if (chat_user_name.equals("Admin")) {
-                    MainActivity.arrayListusermess.get(Integer.parseInt(getIntent().getExtras().get("index").toString())).setLastMess(chat_msg);
-                } else {
-                    MainActivity.arrayListusermess.get(Integer.parseInt(getIntent().getExtras().get("index").toString())).setLastMess(chat_msg);
-                }
-                MainActivity.listUserMessageAdapter.notifyDataSetChanged();
-            }
-            else{
-                rootmessen.child(key).child("seen").setValue("true");
-            }
-
-            }
-
-
-           // recyclerViewnhantin.scrollToPosition(messageAdapter.getItemCount()-1);
-
-
-        }
 
 
 
@@ -444,19 +509,26 @@ public class ChatActivity extends AppCompatActivity {
         toolbarmhchat.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(MainActivity.Clickmenu==true){
-
-                    finish();
-                }
-                else{
+                  //  finishAffinity();
                     chatactivitytofiticlick=true;
-                    Intent intent = new Intent(ChatActivity.this,MainActivity.class);
-                    startActivity(intent);
-                }
+                    //Intent intent = new Intent(ChatActivity.this,MainActivity.class);
+                   // startActivity(intent);
+                    finish();
+
 
 
             }
         });
+    }
+    @Override
+    public void onBackPressed() {
+       // finishAffinity();
+       //// chatactivitytofiticlick=true;
+       // Intent intent = new Intent(ChatActivity.this,MainActivity.class);
+      //  startActivity(intent);
+        finish();
+        // do something on back.
+        return;
     }
 
     private void Anhxa() {
