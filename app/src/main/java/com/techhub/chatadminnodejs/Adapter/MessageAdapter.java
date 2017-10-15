@@ -55,8 +55,8 @@ public  class  MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Messag
     public void onBindViewHolder(MessageViewHolder holder, int position) {
         Message message=mMessages.get(position);
 
-            holder.tvten.setText(message.getTenUser());
-        holder.tvmes.setText(message.getTinNhan());
+            holder.tvten.setText(message.name);
+        holder.tvmes.setText(message.lastmessage);
 
 
     }
@@ -69,7 +69,7 @@ public  class  MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Messag
     @Override
     public int getItemViewType(int position) {
         Message item=mMessages.get(position);
-        if(item.isSend()) return MY_MESS;
+        if(item.usermess.equals("false")) return MY_MESS;
         else return OTHER_MESS;
     }
 

@@ -1,31 +1,29 @@
 package com.techhub.chatadminnodejs.OBJ;
 
-import java.io.Serializable;
-
 /**
- * Created by thiennhat on 05/10/2017.
+ * Created by NTN on 14/10/2017.
  */
 
-public class Message {
-    public String key,lastmessage,name,seen,usermess;
+public class MessageSeenModel {
+   public String key,lastmessage,name,seen,online;
+    public MessageSeenModel(){
 
-    public Message() {
     }
 
-    public Message(String key, String lastmessage, String name, String seen,String usermess) {
+    public MessageSeenModel(String key, String lastmessage, String name, String seen,String online) {
         this.key = key;
         this.lastmessage = lastmessage;
         this.name = name;
         this.seen = seen;
-        this.usermess=usermess;
+        this.online=online;
     }
 
-    public String getUsermess() {
-        return usermess;
+    public String getOnline() {
+        return online;
     }
 
-    public void setUsermess(String usermess) {
-        this.usermess = usermess;
+    public void setOnline(String online) {
+        this.online = online;
     }
 
     public String getKey() {

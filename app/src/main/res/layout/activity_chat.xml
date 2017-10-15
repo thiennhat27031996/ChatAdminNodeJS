@@ -17,6 +17,9 @@
                 android:layout_width="match_parent"
                 android:id="@+id/appbarmhchat"
                 android:layout_height="wrap_content">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
                 <android.support.v7.widget.Toolbar
                     app:title="Tin nhắn"
                     app:titleTextColor="#ffffff"
@@ -24,6 +27,19 @@
                     android:id="@+id/toolbarmhchat"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"></android.support.v7.widget.Toolbar>
+                    <TextView
+
+                        android:layout_marginLeft="10dp"
+                        android:background="@drawable/padingbagecart"
+                        android:gravity="center"
+                        android:id="@+id/tvcartnb"
+                        android:layout_marginTop="5dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:textSize="10sp"
+                        android:textColor="#fffffe"
+                        android:text="0"/>
+                </RelativeLayout>
             </android.support.design.widget.AppBarLayout>
             <RelativeLayout
                 android:background="#9affffff"
@@ -58,11 +74,12 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     >
-                    <ImageView
+                    <ImageButton
                         android:layout_margin="5dp"
                         android:clickable="true"
                         android:layout_width="0dp"
-                        android:layout_height="40dp"
+
+                        android:layout_height="50dp"
                         android:layout_weight="1"
                         android:src="@drawable/iconimage"/>
 

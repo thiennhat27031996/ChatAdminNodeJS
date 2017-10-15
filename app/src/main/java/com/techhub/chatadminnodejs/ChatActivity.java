@@ -25,6 +25,7 @@ import com.github.nkzawa.socketio.client.IO;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -36,11 +37,13 @@ import com.techhub.chatadminnodejs.Adapter.MessageAdapter;
 import com.techhub.chatadminnodejs.ClassUse.CheckinternetToat;
 import com.techhub.chatadminnodejs.OBJ.Message;
 import com.techhub.chatadminnodejs.OBJ.MessageSeen;
+import com.techhub.chatadminnodejs.OBJ.MessageSeenModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.lunainc.chatbar.ViewChatBar;
+import org.w3c.dom.Text;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -55,28 +58,26 @@ public class ChatActivity extends AppCompatActivity {
     NavigationView navigationViewchat;
     ListView listViewmenutinnhan;
     DrawerLayout drawerLayoutchat;
+    TextView tvbagecout;
    // EditText edtnoidungtinnhanjv;
    // Button btnguitinnhanjv;
     ViewChatBar chatbar;
 
 
-
-    ArrayList<String> mangusername;
     ArrayList<Message> mangchat;
     MessageAdapter messageAdapter;
     String adminuser="Admin";
     private String user_name,room_name,temp_key,temp_keyroot2,room_namesv;
-    private DatabaseReference root;
     private DatabaseReference rootmessen;
-    private DatabaseReference rootunread;
-    private DatabaseReference online;
-    private DatabaseReference mdatasend;
-    private DatabaseReference mdoiseen;
-    static boolean chatactivitytofiticlick=false;
-    static boolean onstop=false;
-    static boolean onstart=false;
-    static String chatactivitinottyfi;
-    private int index=0;
+
+    private FirebaseDatabase databaseUsermessChat;
+    private DatabaseReference databaseUsermessChatreference;
+    private FirebaseDatabase databaseUsermessMain;
+    private DatabaseReference databaseUsermessChatreferenceMain;
+
+
+
+
 
     private com.github.nkzawa.socketio.client.Socket mSocket;
     {
@@ -90,18 +91,40 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        onstop=true;
-        onstart=false;
-        Seenmethod();
+        offline();
+        updateseen();
+
+
 
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        onstart=true;
-        onstop=false;
-        Seenmethod();
+        updateseen();
+        online();
+
+
+    }
+    private void online(){
+        DatabaseReference ref1 = FirebaseDatabase.getInstance().getReference().child("DeviceAndroid");
+
+        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+        final String current_user_id=currentFirebaseUser.getUid();
+
+        ref1.child(current_user_id).child("online").setValue("true");
+
+
+
+    }
+    private void offline(){
+        DatabaseReference ref1 = FirebaseDatabase.getInstance().getReference().child("DeviceAndroid");
+
+        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+        final String current_user_id=currentFirebaseUser.getUid();
+
+        ref1.child(current_user_id).child("online").setValue("false");
+
 
 
     }
@@ -113,27 +136,58 @@ public class ChatActivity extends AppCompatActivity {
 
 
         Anhxa();
-       // Firebase();
         ConnectSocketio();
         Actionbar();
         Firebase2();
 
+
+        Getcoutunreadmess();
+
+    }
+
+    private void Getcoutunreadmess() {
+
+        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("OnlineMess");
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                int questionsolved = 0;
+                for(DataSnapshot snapShot   :dataSnapshot.getChildren()){
+
+                    String checkCorrectAnswer = snapShot.child("seen").getValue(String.class);
+                    String checkname=snapShot.child("name").getValue(String.class);
+                    if (checkCorrectAnswer.equals("false") && !checkname.equals(room_name) ) {
+                        questionsolved = questionsolved + 1;
+                    }
+
+                }
+                tvbagecout.setText(String.valueOf(questionsolved));
+                if(tvbagecout.getText().equals("0")){
+                    tvbagecout.setVisibility(View.INVISIBLE);
+                }
+                else{
+                    tvbagecout.setVisibility(View.VISIBLE);
+                }
+               // CheckinternetToat.toastcheckinternet(ChatActivity.this,String.valueOf(questionsolved));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
 
-
-
-
     private void Firebase2(){
+
 //set title
         room_name=getIntent().getExtras().get("from_user_id").toString();
         toolbarmhchat.setTitle(room_name);
         //lay data trong room
-        rootmessen=FirebaseDatabase.getInstance().getReference().child("MessageSeen").child(toolbarmhchat.getTitle().toString());
-        rootunread=FirebaseDatabase.getInstance().getReference().child("UnreadMessage").child(toolbarmhchat.getTitle().toString());
-       // online=FirebaseDatabase.getInstance().getReference().child("Client").child(room_name);
-
+        rootmessen=FirebaseDatabase.getInstance().getReference().child("MessageSeen").child(room_name);
         //curent send mess
+        final DatabaseReference db=FirebaseDatabase.getInstance().getReference().child("OnlineMess").child(room_name);
         chatbar.setSendClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -147,33 +201,72 @@ public class ChatActivity extends AppCompatActivity {
                 map4.put("name","Admin");
                 map4.put("seen","true");
                 map4.put("key",temp_keyroot2);
+                map4.put("usermess","false");
+                Map<String,Object> map5=new HashMap<String,Object>();
+                map5.put("lastmessage",chatbar.getMessageText());
+                map5.put("name",room_name);
+                map5.put("seen","true");
+                map5.put("key",temp_keyroot2);
+                db.updateChildren(map5);
                 message_rootseen.updateChildren(map4);
 
                 chatbar.setClearMessage(true);
-                //  Toast.makeText(getApplicationContext(),temp_key,Toast.LENGTH_LONG).show();
             }
         });
 
 
+        databaseUsermessChat=FirebaseDatabase.getInstance();
+        databaseUsermessChatreference=databaseUsermessChat.getReference("MessageSeen").child(room_name);
+
+        databaseUsermessMain=FirebaseDatabase.getInstance();
+        databaseUsermessChatreferenceMain=databaseUsermessMain.getReference("OnlineMess").child(room_name);
+
+
+        updateList();
 
 
 
-        rootmessen.addChildEventListener(new ChildEventListener() {
+
+
+
+
+
+
+    }
+
+    private void updateseen(){
+        databaseUsermessChatreferenceMain.child("seen").setValue("true");
+    }
+    private void updateList(){
+        databaseUsermessChatreference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                append_chat_converseen2(dataSnapshot);
+                //CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.getValue(MessageSeenModel.class).toString());
+                mangchat.add(dataSnapshot.getValue(Message.class));
+                messageAdapter.notifyDataSetChanged();
+                recyclerViewnhantin.scrollToPosition(mangchat.size()-1);
 
-                unread(dataSnapshot);
+
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                append_chat_converseen2(dataSnapshot);
-                unread(dataSnapshot);
+
+                Message message=dataSnapshot.getValue(Message.class);
+
+                int index =getItemIndex(message);
+                mangchat.set(index,message);
+                messageAdapter.notifyItemChanged(index);
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                Message message=dataSnapshot.getValue(Message.class);
+
+                int index =getItemIndex(message);
+                mangchat.remove(index);
+                messageAdapter.notifyItemRemoved(index);
 
             }
 
@@ -188,214 +281,60 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-
-
-
-
-
-
     }
-
-    private void unread(final DataSnapshot dataSnapshot2) {
-        if(onstart==true && onstop==false) {
-            rootunread.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot1) {
-
-
-                    for (DataSnapshot childDataSnapshot : dataSnapshot1.getChildren()) {
-
-                        if (onstart == true && onstop == false && toolbarmhchat.getTitle().toString().equals(childDataSnapshot.child("name").getValue().toString())) {
-                            rootunread.orderByKey().limitToLast(1).addChildEventListener(new ChildEventListener() {
-                                @Override
-                                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                                    //CheckinternetToat.toastcheckinternet(ChatActivity.this,dataSnapshot.child("lastmessage").getValue().toString());
-                                    rootunread.child(dataSnapshot.getKey()).child("seen").setValue(true);
-
-                                }
-
-                                @Override
-                                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                                }
-
-                                @Override
-                                public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                                }
-
-                                @Override
-                                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
-
-
-                        }
-                        else{
-                            rootunread.orderByKey().limitToLast(1).addChildEventListener(new ChildEventListener() {
-                                @Override
-                                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                                    //CheckinternetToat.toastcheckinternet(ChatActivity.this,dataSnapshot.child("lastmessage").getValue().toString());
-                                    rootunread.child(dataSnapshot.getKey()).child("seen").setValue(false);
-
-                                }
-
-                                @Override
-                                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                                }
-
-                                @Override
-                                public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                                }
-
-                                @Override
-                                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
-
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-        }
-    }
-
-    private void append_chat_converseen2(DataSnapshot dataSnapshot){
-
-        String tit=toolbarmhchat.getTitle().toString();
-            //CheckinternetToat.toastcheckinternet(ChatActivity.this,dataSnapshot.child("name").getValue().toString());
-            if(dataSnapshot.child("name").getValue().toString().equals("Admin")){
-                Message message1=new Message("",dataSnapshot.child("lastmessage").getValue().toString(),true);
-                mangchat.add(message1);
-            }
-
-            else{
-                if(MainActivity.onstop==true){
-                    for(int i=0;i<MainActivity.arrayListusermess.size();i++){
-                        if(MainActivity.arrayListusermess.get(i).equals(tit)){
-                            MainActivity.arrayListusermess.get(i).setLastMess(dataSnapshot.child("lastmessage").getValue().toString());
-                          //  MainActivity.arrayListusermess.get(i).setSeen(false);
-                            MainActivity.listUserMessageAdapter.notifyDataSetChanged();
-                        }
-                        else{
-
-                        }
-                    }
-                   // CheckinternetToat.toastcheckinternet(ChatActivity.this,"true");
-                }
-                else{
-                    //CheckinternetToat.toastcheckinternet(ChatActivity.this,"false");
-
-                }
-                Message message1=new Message("",dataSnapshot.child("lastmessage").getValue().toString(),false);
-                mangchat.add(message1);
-
-            }
-            messageAdapter.notifyDataSetChanged();
-
-            recyclerViewnhantin.scrollToPosition(messageAdapter.getItemCount()-1);
-
-
-
-
-    }
-
-    private void Seenmethod() {
-        final String tool=toolbarmhchat.getTitle().toString();
-        mdatasend=FirebaseDatabase.getInstance().getReference().child("OnlineMess");
-
-
-
-                //CheckinternetToat.toastcheckinternet(ChatActivity.this,dataSnapshot.child(tool).child("online").getValue().toString());
-
-                    if(onstop==true) {
-                        mdatasend.child(toolbarmhchat.getTitle().toString()).child("online").setValue(false);
-                    }else{
-                        mdatasend.child(toolbarmhchat.getTitle().toString()).child("online").setValue(true);
-                    }
-                    //CIntent intent = new Intent(MainActivity.this, ChatActivity.class);
-                    //startActivity(intent);
-                    //finish();
-
-            }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    private String clientkey_push,client_user_id;
-    private String client_online;
-    private void checkonline(DataSnapshot dataSnapshot){
-        Iterator i=dataSnapshot.getChildren().iterator();
-        while(i.hasNext()){
-            clientkey_push=(String)((DataSnapshot)i.next()).getValue();
-            client_online=(String)((DataSnapshot)i.next()).getValue();
-            client_user_id=(String)((DataSnapshot)i.next()).getValue();
-            if(client_online !=null && client_online!="true"){
-                Toast.makeText(getApplicationContext(),"user đã thoát",Toast.LENGTH_LONG).show();
+    private int getItemIndex(Message usermess){
+        int index=-1;
+        for(int i=0;i<mangchat.size();i++) {
+            if(mangchat.get(i).name.equals(usermess.name)){
+                index=i;
+                break;
             }
         }
-
+        return index;
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -426,78 +365,6 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
-    private Emitter.Listener onNew_guitinchat = new Emitter.Listener() {
-        @Override
-        public void call(final Object... args) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    JSONObject data = (JSONObject) args[0];
-                    String noidung,id;
-
-                    try {
-                        noidung = data.getString("tinchat");
-                        id=data.getString("idchat");
-                        Toast.makeText(getApplicationContext(),noidung.toString()+id.toString(),Toast.LENGTH_LONG).show();
-
-                        /*if(!noidung.toString().equals(edtnoidungtinnhanjv.getText().toString())){
-                            Message message=new Message(id,noidung,false);
-                            mangchat.add(message);
-
-                        }
-                        else{
-                           // Message message1=new Message("Admin : ",edtnoidungtinnhanjv.getText().toString(),true);
-                           // mangchat.add(message1);
-
-                        }*/
-                        messageAdapter.notifyDataSetChanged();
-
-                      //  edtnoidungtinnhanjv.setText("");
-                        recyclerViewnhantin.scrollToPosition(messageAdapter.getItemCount()-1);
-
-
-                    } catch (JSONException e) {
-                        return;
-                    }
-                }
-            });
-        }
-    };
-
-
-    private Emitter.Listener onNew_dsusn = new Emitter.Listener() {
-        @Override
-        public void call(final Object... args) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    JSONObject data = (JSONObject) args[0];
-                    JSONArray noidung;
-                    mangusername.removeAll(mangusername);
-
-                    try {
-                        noidung = data.getJSONArray("danhsach");
-                        Toast.makeText(getApplicationContext(),noidung.toString(),Toast.LENGTH_LONG).show();
-                        for(int i=0;i<noidung.length();i++){
-                                    mangusername.add(noidung.get(i).toString());
-                            }
-                        ArrayAdapter adapter=new ArrayAdapter(getApplicationContext(),android.R.layout.simple_list_item_1,mangusername);
-                        listViewmenutinnhan.setAdapter(adapter);
-                        adapter.notifyDataSetChanged();
-
-
-
-
-
-                    } catch (JSONException e) {
-                        return;
-                    }
-                }
-            });
-        }
-    };
-
-
 
 
 
@@ -509,10 +376,6 @@ public class ChatActivity extends AppCompatActivity {
         toolbarmhchat.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                  //  finishAffinity();
-                    chatactivitytofiticlick=true;
-                    //Intent intent = new Intent(ChatActivity.this,MainActivity.class);
-                   // startActivity(intent);
                     finish();
 
 
@@ -522,12 +385,7 @@ public class ChatActivity extends AppCompatActivity {
     }
     @Override
     public void onBackPressed() {
-       // finishAffinity();
-       //// chatactivitytofiticlick=true;
-       // Intent intent = new Intent(ChatActivity.this,MainActivity.class);
-      //  startActivity(intent);
-        finish();
-        // do something on back.
+
         return;
     }
 
@@ -537,6 +395,8 @@ public class ChatActivity extends AppCompatActivity {
         listViewmenutinnhan=(ListView)findViewById(R.id.lvmenutinnhan);
         navigationViewchat=(NavigationView)findViewById(R.id.navigationviewchat);
         drawerLayoutchat=(DrawerLayout)findViewById(R.id.drawerlayoutchat);
+        tvbagecout=(TextView)findViewById(R.id.tvcartnb) ;
+        tvbagecout.setVisibility(View.INVISIBLE);
 
         recyclerViewnhantin.setHasFixedSize(true);
         recyclerViewnhantin.setLayoutManager(new GridLayoutManager(getApplicationContext(),1));
@@ -546,9 +406,9 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
+
         mangchat=new ArrayList<>();
         messageAdapter=new MessageAdapter(mangchat,getApplicationContext());
-        mangusername=new ArrayList<String>();
         recyclerViewnhantin.setAdapter(messageAdapter);
 
 

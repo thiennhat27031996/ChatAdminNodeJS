@@ -2,15 +2,20 @@ package com.techhub.chatadminnodejs;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Handler;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -21,7 +26,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.nkzawa.socketio.client.IO;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -29,13 +38,18 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.techhub.chatadminnodejs.Adapter.ListUserMessageAdapter;
+import com.techhub.chatadminnodejs.Adapter.MessageSeenAdapter;
 import com.techhub.chatadminnodejs.ClassUse.CheckinternetToat;
 import com.techhub.chatadminnodejs.OBJ.Message;
 import com.techhub.chatadminnodejs.OBJ.MessageSeen;
+import com.techhub.chatadminnodejs.OBJ.MessageSeenModel;
 
 import org.jsoup.nodes.Comment;
 
@@ -44,9 +58,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
+import me.leolin.shortcutbadger.ShortcutBadger;
+
+import static android.R.string.yes;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -58,18 +79,23 @@ public class MainActivity extends AppCompatActivity {
     NavigationView navigationView;
     ListView listViewmenumhc,lvphong;
     DrawerLayout drawerLayout;
-    private ArrayAdapter<String> arrayAdapter;
-    private ArrayList<String> list_of_room=new ArrayList<>();
+private ListView listviewUsermess;
+    private List<MessageSeenModel> resultMessageSeenmodel;
+    private MessageSeenAdapter messageSeenAdapter;
+
     private String name;
-    private DatabaseReference root= FirebaseDatabase.getInstance().getReference().child("Message");
-    private DatabaseReference messSeen=FirebaseDatabase.getInstance().getReference().child("MessageSeen");
+
     private DatabaseReference mUserDatabase;
     private DatabaseReference rootunread=FirebaseDatabase.getInstance().getReference().child("UnreadMessage");
     private DatabaseReference mdatasend;
+    private FirebaseDatabase databaseUsermessMain;
+    private DatabaseReference databaseUsermessMainreference;
     static boolean Clickmenu=false;
-    static boolean onstart=false;
     static boolean onstop=false;
-    static boolean start=false;
+
+
+// during onCreate:
+
 
 
 
@@ -83,22 +109,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        onstart=true;
-        onstop=false;
+    protected void onStop() {
+        super.onStop();
+        offline();
 
     }
 
     @Override
-    protected void onStop() {
+    protected void onStart() {
+        super.onStart();
+        online();
+    }
 
-        super.onStop();
-        onstop=true;
-        onstart=false;
+    private void online(){
+        DatabaseReference ref1 = FirebaseDatabase.getInstance().getReference().child("DeviceAndroid");
+
+            FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+            final String current_user_id=currentFirebaseUser.getUid();
+
+            ref1.child(current_user_id).child("online").setValue("true");
+
 
 
     }
+    private void offline(){
+        DatabaseReference ref1 = FirebaseDatabase.getInstance().getReference().child("DeviceAndroid");
+
+        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+        final String current_user_id=currentFirebaseUser.getUid();
+
+        ref1.child(current_user_id).child("online").setValue("false");
+
+
+
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,452 +157,51 @@ public class MainActivity extends AppCompatActivity {
         Actionbar();
         getTokenid();
 
-
-        Firebase2();
-        start=true;
+        updateList();
 
 
-//        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
+
+
+
+
+
+        Getcoutunreadmess();
 
 
 
 
     }
+    private void Getcoutunreadmess() {
+
+        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("OnlineMess");
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                int questionsolved = 0;
+                for(DataSnapshot snapShot   :dataSnapshot.getChildren()){
+
+                    String checkCorrectAnswer = snapShot.child("seen").getValue(String.class);
+                    if (checkCorrectAnswer.equals("false")) {
+                        questionsolved = questionsolved + 1;
+                    }
 
 
+                }
+                ShortcutBadger.applyCount(getApplicationContext(), questionsolved);
+                if(questionsolved==0){
+                    ShortcutBadger.removeCount(getApplicationContext());//for 1.1.4+
+                }
 
-
-
-    private void dataFirebase2(final DataSnapshot dataSnapshot){
-
-
-
-        arrayListusermess.add(new MessageSeen(dataSnapshot.getKey(),"",false));
-        listUserMessageAdapter.notifyDataSetChanged();
-
-
-
-
-                                                                                                                                                    //CheckinternetToat.toastcheckinternet(MainActivity.this,newComment.toString());
-
-
-
-
+                // CheckinternetToat.toastcheckinternet(ChatActivity.this,String.valueOf(questionsolved));
             }
 
-
-
-
-
-
-
-
-            //messSeen.child(dataSnapshot.getKey()).orderByKey().limitToLast(1).toString();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- private void Firebase2(){
-
-     messSeen.addChildEventListener(new ChildEventListener() {
-         @Override
-         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-             //thêm client mới là add
-             // arrayListusermess.clear();
-             dataFirebase2(dataSnapshot);
-             //childDataSnapshot.child(--ENTER THE KEY NAME eg. firstname or email etc.--).getValue());   //gives the value for given keyname
-             // }
-             //  getMesslast(dataSnapshot);
-
-
-
-         }
-
-         @Override
-         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            // dataFirebase2(dataSnapshot);
-             // arrayListusermess.clear();
-             //dataFirebase2(dataSnapshot);
-
-
-             //thêm tin nhắn mới là change
-
-
-
-         }
-
-         @Override
-         public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-         }
-
-         @Override
-         public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-         }
-
-         @Override
-         public void onCancelled(DatabaseError databaseError) {
-
-         }
-     });
-
-
-
-
-
-
-     rootunread.addChildEventListener(new ChildEventListener() {
-         @Override
-         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-         }
-
-         @Override
-         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-             for(int i=0;i<arrayListusermess.size();i++){
-                 if(arrayListusermess.get(i).getTenUser().equals(dataSnapshot.getKey())){
-                     final int vitri=i;
-                    // CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.getChildr);
-
-                     rootunread.child(dataSnapshot.getKey()).addChildEventListener(new ChildEventListener() {
-                         @Override
-                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                         }
-
-                         @Override
-                         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                             if(dataSnapshot.child("seen").getValue().toString().equals("true")){
-                                 arrayListusermess.get(vitri).setSeen(true);
-                             }else{
-                                 arrayListusermess.get(vitri).setSeen(false);
-                             }
-
-
-
-                         }
-
-                         @Override
-                         public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                         }
-
-                         @Override
-                         public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                         }
-
-                         @Override
-                         public void onCancelled(DatabaseError databaseError) {
-
-                         }
-                     });
-
-
-
-
-
-
-
-
-
-
-
-
-
-                     for (final DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
-
-
-                     }
-
-                 }
-             }
-
-
-         }
-
-         @Override
-         public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-         }
-
-         @Override
-         public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-         }
-
-         @Override
-         public void onCancelled(DatabaseError databaseError) {
-
-         }
-     });
-
-
-
-
-
-
-
-
-
-
-
-     rootunread.addValueEventListener(new ValueEventListener() {
-         @Override
-         public void onDataChange(DataSnapshot dataSnapshot) {
-             for (final DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
-                     rootunread.addChildEventListener(new ChildEventListener() {
-                         @Override
-                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                             for(int i = 0; i<arrayListusermess.size();i++) {
-
-                                 if (arrayListusermess.get(i).getTenUser().equals(dataSnapshot.getKey())) {
-                                     // CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.getKey());
-                                     final int vitri=i;
-                                     rootunread.child(arrayListusermess.get(vitri).getTenUser()).orderByKey().limitToLast(1).addChildEventListener(new ChildEventListener() {
-                                         @Override
-                                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                                             if(onstart==true && onstop==false) {
-                                                // rootunread.child(arrayListusermess.get(vitri).getTenUser()).child(dataSnapshot.getKey()).child("seen").setValue(false);
-                                               //  arrayListusermess.get(vitri).setSeen(false);
-                                                 //  CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.child("lastmessage").getValue().toString());
-                                                 if(dataSnapshot.child("seen").getValue().toString().equals("true")){
-                                                     arrayListusermess.get(vitri).setSeen(true);
-                                                 }
-                                                 else{
-                                                     arrayListusermess.get(vitri).setSeen(false);
-                                                 }
-
-
-                                                 arrayListusermess.get(vitri).setLastMess(dataSnapshot.child("lastmessage").getValue().toString());
-                                                 listUserMessageAdapter.notifyDataSetChanged();
-
-
-                                             }
-                                         }
-
-                                         @Override
-                                         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-
-
-                                         }
-
-                                         @Override
-                                         public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                                         }
-
-                                         @Override
-                                         public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                                         }
-
-                                         @Override
-                                         public void onCancelled(DatabaseError databaseError) {
-
-                                         }
-                                     });
-
-                                 }
-
-
-                             }
-
-
-
-
-
-                         }
-
-                         @Override
-                         public void onChildChanged(final DataSnapshot dataSnapshot1, String s) {
-                             for(int i = 0; i<arrayListusermess.size();i++) {
-                                 if (arrayListusermess.get(i).getTenUser().equals(dataSnapshot1.getKey())) {
-                                    // CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.getKey());
-                                    final int vitri=i;
-                                     rootunread.child(arrayListusermess.get(vitri).getTenUser()).orderByKey().limitToLast(1).addChildEventListener(new ChildEventListener() {
-                                         @Override
-                                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                                             if(onstart==true && onstop==false) {
-                                                 //rootunread.child(arrayListusermess.get(vitri).getTenUser()).child(dataSnapshot.getKey()).child("seen").setValue(false);
-                                                // arrayListusermess.get(vitri).setSeen(false);
-                                                 //  CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.child("lastmessage").getValue().toString());
-                                                 arrayListusermess.get(vitri).setLastMess(dataSnapshot.child("lastmessage").getValue().toString());
-                                                 listUserMessageAdapter.notifyDataSetChanged();
-                                             }
-
-                                         }
-
-                                         @Override
-                                         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                                             if(onstart==true && onstop==false) {
-                                                  rootunread.child(arrayListusermess.get(vitri).getTenUser()).child(dataSnapshot.getKey()).child("seen").setValue(false);
-                                                 arrayListusermess.get(vitri).setSeen(false);
-                                                 //  CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.child("lastmessage").getValue().toString());
-                                                 arrayListusermess.get(vitri).setLastMess(dataSnapshot.child("lastmessage").getValue().toString());
-                                                 listUserMessageAdapter.notifyDataSetChanged();
-                                             }
-
-                                         }
-
-                                         @Override
-                                         public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                                         }
-
-                                         @Override
-                                         public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                                         }
-
-                                         @Override
-                                         public void onCancelled(DatabaseError databaseError) {
-
-                                         }
-                                     });
-
-                                 }
-                             }
-
-
-                         }
-
-                         @Override
-                         public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                         }
-
-                         @Override
-                         public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                         }
-
-                         @Override
-                         public void onCancelled(DatabaseError databaseError) {
-
-                         }
-                     });//
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-             }
-
-
-
-
-         }
-
-         @Override
-         public void onCancelled(DatabaseError databaseError) {
-
-         }
-     });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-     lvphong.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-         @Override
-         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-             arrayListusermess.get(i).setSeen(true);
-             Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-             intent.putExtra("from_user_id", arrayListusermess.get(i).getTenUser());
-             intent.putExtra("user_name", name);
-             intent.putExtra("index",i);
-             startActivity(intent);
-             //Toast.makeText(getApplicationContext(),,Toast.LENGTH_LONG).show();
-         }
-     });
-
-
-
-
-
- }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
 
 
 
@@ -599,60 +243,105 @@ public class MainActivity extends AppCompatActivity {
     private void Anhxa() {
 
         toolbarmhc = (Toolbar) findViewById(R.id.toolbarmhc);
-
-
-        //firebase
-
-
         listViewmenumhc = (ListView) findViewById(R.id.lvmenutrangchu);
         navigationView = (NavigationView) findViewById(R.id.navigationview);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerlayout);
-        lvphong = (ListView) findViewById(R.id.lvmhc);
-
-        arrayListusermess = new ArrayList<>();
-        listUserMessageAdapter = new ListUserMessageAdapter(arrayListusermess, getApplicationContext());
-
-        lvphong.setAdapter(listUserMessageAdapter);
-
-        request_username();
 
 
 
+        resultMessageSeenmodel=new ArrayList<>();
+        listviewUsermess=(ListView) findViewById(R.id.rcvuser);
+        //recyclerViewuser.setHasFixedSize(true);
+       // LinearLayoutManager llm=new LinearLayoutManager(this);
+       // llm.setOrientation(LinearLayoutManager.VERTICAL);
 
-        lvphong.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+       // recyclerViewuser.setLayoutManager(llm);
+        messageSeenAdapter=new MessageSeenAdapter(resultMessageSeenmodel,getApplicationContext());
+        listviewUsermess.setAdapter(messageSeenAdapter);
+
+        ///firebase
+        databaseUsermessMain=FirebaseDatabase.getInstance();
+        databaseUsermessMainreference=databaseUsermessMain.getReference("OnlineMess");
+
+
+
+
+
+        listviewUsermess.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                 arrayListusermess.get(i).setSeen(true);
+                databaseUsermessMainreference.child(resultMessageSeenmodel.get(i).name).child("seen").setValue("true");
                 Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-                intent.putExtra("from_user_id", arrayListusermess.get(i).getTenUser());
-                intent.putExtra("user_name", name);
+                intent.putExtra("from_user_id",resultMessageSeenmodel.get(i).name);
+                intent.putExtra("user_name", "Admin");
                 intent.putExtra("index",i);
-                Clickmenu=true;
+               // Clickmenu=true;
                 startActivity(intent);
                 //Toast.makeText(getApplicationContext(),,Toast.LENGTH_LONG).show();
             }
         });
 
 
-
-
-
-
-
-
-
     }
 
 
+    private void updateList(){
+        databaseUsermessMainreference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+               //CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.getValue(MessageSeenModel.class).toString());
+               resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
+                messageSeenAdapter.notifyDataSetChanged();
 
 
 
 
-    private void request_username() {
-        name="Admin";
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                MessageSeenModel messageSeenModel=dataSnapshot.getValue(MessageSeenModel.class);
+
+
+                int index1 =getItemIndex(messageSeenModel);
+                resultMessageSeenmodel.set(index1,messageSeenModel);
+                messageSeenAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                MessageSeenModel messageSeenModel=dataSnapshot.getValue(MessageSeenModel.class);
+
+                int index =getItemIndex(messageSeenModel);
+                resultMessageSeenmodel.remove(index);
+                messageSeenAdapter.notifyDataSetChanged();
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
+    private int getItemIndex(MessageSeenModel usermess){
+        int index=-1;
+        for(int i=0;i<resultMessageSeenmodel.size();i++) {
+                if(resultMessageSeenmodel.get(i).name.equals(usermess.name)){
+                    index=i;
+                    break;
+                }
+        }
+        return index;
 
-
+    }
 
 }
