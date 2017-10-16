@@ -19,11 +19,11 @@
         app:bl_arrowPosition="16dp"
         app:bl_arrowWidth="10dp"
         app:bl_bubbleColor="#dadadee9"
-        app:bl_cornersRadius="40dp">
+        app:bl_cornersRadius="25dp">
 
-        <LinearLayout
+        <RelativeLayout
             android:padding="5dp"
-            android:orientation="horizontal"
+
             android:gravity="center_vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -41,7 +41,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="noidung"/>
-        </LinearLayout>
+            <ImageView
+                android:id="@+id/imvtinnhan"
+                android:maxWidth="150dp"
+                android:maxHeight="100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
 
     </com.daasuu.bl.BubbleLayout>
 

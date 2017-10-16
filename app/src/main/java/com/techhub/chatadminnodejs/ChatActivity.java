@@ -1,6 +1,13 @@
 package com.techhub.chatadminnodejs;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
@@ -14,6 +21,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +30,10 @@ import com.firebase.ui.database.FirebaseListAdapter;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.engineio.client.Socket;
 import com.github.nkzawa.socketio.client.IO;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,6 +44,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.techhub.chatadminnodejs.Adapter.ListUserMessageAdapter;
 import com.techhub.chatadminnodejs.Adapter.MessageAdapter;
 import com.techhub.chatadminnodejs.ClassUse.CheckinternetToat;
@@ -45,12 +61,14 @@ import org.json.JSONObject;
 import org.lunainc.chatbar.ViewChatBar;
 import org.w3c.dom.Text;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class ChatActivity extends AppCompatActivity {
     Toolbar toolbarmhchat;
@@ -62,6 +80,7 @@ public class ChatActivity extends AppCompatActivity {
    // EditText edtnoidungtinnhanjv;
    // Button btnguitinnhanjv;
     ViewChatBar chatbar;
+    ImageButton btnthemanh;
 
 
     ArrayList<Message> mangchat;
@@ -74,6 +93,10 @@ public class ChatActivity extends AppCompatActivity {
     private DatabaseReference databaseUsermessChatreference;
     private FirebaseDatabase databaseUsermessMain;
     private DatabaseReference databaseUsermessChatreferenceMain;
+    private FirebaseStorage mstorage;
+    private StorageReference mStoragethemanh;
+    private Uri filepath;
+    private static final    int GALLERY_INTENT=2;
 
 
 
@@ -135,14 +158,108 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
 
 
+
         Anhxa();
         ConnectSocketio();
         Actionbar();
         Firebase2();
-
-
+        SendImagefirebase();
         Getcoutunreadmess();
 
+    }
+
+    private void SendImagefirebase() {
+        mstorage=FirebaseStorage.getInstance();
+        mStoragethemanh= mstorage.getReference();
+
+        btnthemanh.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP_MR1)
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(Intent.createChooser(intent,"Chon Hinh"),GALLERY_INTENT);
+
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==GALLERY_INTENT && resultCode == RESULT_OK && data != null && data.getData() !=null){
+            //CheckinternetToat.toastcheckinternet(ChatActivity.this,"successvao");
+
+            room_name=getIntent().getExtras().get("from_user_id").toString();
+             filepath=data.getData();
+            rootmessen=FirebaseDatabase.getInstance().getReference().child("MessageSeen").child(room_name);
+            //curent send mess
+            final DatabaseReference db=FirebaseDatabase.getInstance().getReference().child("OnlineMess").child(room_name);
+
+
+            try{
+
+                Bitmap bitmap= MediaStore.Images.Media.getBitmap(getContentResolver(),filepath);
+                if(filepath!=null){
+                    final ProgressDialog progressDialog= new ProgressDialog(this);
+                    progressDialog.setTitle("Uploading...");
+                    progressDialog.show();
+
+                    StorageReference ref=mStoragethemanh.child("MessageSeen").child(room_name+"/"+ UUID.randomUUID().toString());
+                    ref.putFile(filepath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            progressDialog.dismiss();
+                            String url=taskSnapshot.getDownloadUrl().toString();
+
+                            Map<String,Object> map3=new HashMap<String,Object>();
+                            temp_keyroot2=rootmessen.push().getKey();
+                            rootmessen.updateChildren(map3);
+                            DatabaseReference message_rootseen=rootmessen.child(temp_keyroot2);
+                            Map<String,Object> map4=new HashMap<String,Object>();
+                            map4.put("lastmessage",chatbar.getMessageText());
+                            map4.put("name","Admin");
+                            map4.put("seen","true");
+                            map4.put("key",temp_keyroot2);
+                            map4.put("usermess","false");
+                            map4.put("url",url);
+                            Map<String,Object> map5=new HashMap<String,Object>();
+                            map5.put("lastmessage","[Image]");
+                            map5.put("name",room_name);
+                            map5.put("seen","true");
+                            map5.put("key",temp_keyroot2);
+                            db.updateChildren(map5);
+                            message_rootseen.updateChildren(map4);
+
+                        }
+                    }) .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+
+                        }
+                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            double progess=(100.0*taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
+                            progressDialog.setMessage("Uploaded "+(int)progess+"%");
+                        }
+                    });
+
+                }
+                //anh da chose xog tai day
+
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+
+
+
+
+
+
+        }
     }
 
     private void Getcoutunreadmess() {
@@ -202,6 +319,7 @@ public class ChatActivity extends AppCompatActivity {
                 map4.put("seen","true");
                 map4.put("key",temp_keyroot2);
                 map4.put("usermess","false");
+                map4.put("url","null");
                 Map<String,Object> map5=new HashMap<String,Object>();
                 map5.put("lastmessage",chatbar.getMessageText());
                 map5.put("name",room_name);
@@ -241,10 +359,14 @@ public class ChatActivity extends AppCompatActivity {
         databaseUsermessChatreference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                //CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.getValue(MessageSeenModel.class).toString());
+
                 mangchat.add(dataSnapshot.getValue(Message.class));
+
                 messageAdapter.notifyDataSetChanged();
                 recyclerViewnhantin.scrollToPosition(mangchat.size()-1);
+               // Message message=dataSnapshot.getValue(Message.class);
+               // int index =getItemIndex(message);
+              //  CheckinternetToat.toastcheckinternet(ChatActivity.this,mangchat.get(index).getUrl());
 
 
             }
@@ -253,7 +375,6 @@ public class ChatActivity extends AppCompatActivity {
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
                 Message message=dataSnapshot.getValue(Message.class);
-
                 int index =getItemIndex(message);
                 mangchat.set(index,message);
                 messageAdapter.notifyItemChanged(index);
@@ -285,7 +406,7 @@ public class ChatActivity extends AppCompatActivity {
     private int getItemIndex(Message usermess){
         int index=-1;
         for(int i=0;i<mangchat.size();i++) {
-            if(mangchat.get(i).name.equals(usermess.name)){
+            if(mangchat.get(i).key.equals(usermess.key)){
                 index=i;
                 break;
             }
@@ -397,6 +518,7 @@ public class ChatActivity extends AppCompatActivity {
         drawerLayoutchat=(DrawerLayout)findViewById(R.id.drawerlayoutchat);
         tvbagecout=(TextView)findViewById(R.id.tvcartnb) ;
         tvbagecout.setVisibility(View.INVISIBLE);
+        btnthemanh=(ImageButton)findViewById(R.id.btnthemanh);
 
         recyclerViewnhantin.setHasFixedSize(true);
         recyclerViewnhantin.setLayoutManager(new GridLayoutManager(getApplicationContext(),1));

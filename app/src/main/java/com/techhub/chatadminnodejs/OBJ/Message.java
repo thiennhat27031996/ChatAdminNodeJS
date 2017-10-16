@@ -7,17 +7,26 @@ import java.io.Serializable;
  */
 
 public class Message {
-    public String key,lastmessage,name,seen,usermess;
+    public String key,lastmessage,name,seen,usermess,url;
 
     public Message() {
     }
 
-    public Message(String key, String lastmessage, String name, String seen,String usermess) {
+    public Message(String key, String lastmessage, String name, String seen,String usermess,String url) {
         this.key = key;
         this.lastmessage = lastmessage;
         this.name = name;
         this.seen = seen;
         this.usermess=usermess;
+        this.url=url;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getUsermess() {

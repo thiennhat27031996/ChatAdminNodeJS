@@ -6,9 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseListAdapter;
+import com.squareup.picasso.Picasso;
 import com.techhub.chatadminnodejs.OBJ.Message;
 import com.techhub.chatadminnodejs.R;
 
@@ -56,7 +58,15 @@ public  class  MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Messag
         Message message=mMessages.get(position);
 
             holder.tvten.setText(message.name);
-        holder.tvmes.setText(message.lastmessage);
+       holder.tvmes.setText(message.lastmessage);
+        if(!message.url.equals("null")) {
+            holder.imvmes.setVisibility(View.VISIBLE);
+            Picasso.with(context).load(message.url).resize(300,250).error(R.drawable.error).placeholder(R.drawable.progress_animation).into(holder.imvmes);
+        }
+        else{
+            holder.imvmes.setVisibility(View.GONE);
+        }
+
 
 
     }
@@ -75,12 +85,14 @@ public  class  MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Messag
 
     class MessageViewHolder extends RecyclerView.ViewHolder{
         TextView tvten,tvmes;
+        ImageView imvmes;
 
         MessageViewHolder(View itemView){
             super(itemView);
 
             tvten=(TextView)itemView.findViewById(R.id.idnguoiguitin);
             tvmes=(TextView)itemView.findViewById(R.id.textnguoigui);
+            imvmes=(ImageView)itemView.findViewById(R.id.imvtinnhan);
         }
 
 

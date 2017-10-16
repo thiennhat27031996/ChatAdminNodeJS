@@ -297,17 +297,24 @@ private ListView listviewUsermess;
 
 
 
+
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
+
                 MessageSeenModel messageSeenModel=dataSnapshot.getValue(MessageSeenModel.class);
 
 
-                int index1 =getItemIndex(messageSeenModel);
-                resultMessageSeenmodel.set(index1,messageSeenModel);
-                messageSeenAdapter.notifyDataSetChanged();
+                if(resultMessageSeenmodel.size()>0) {
+                    int index1 = getItemIndex(messageSeenModel);
+                    //   listviewUsermess.smoothScrollToPositionFromTop(0,index1);
+
+                    resultMessageSeenmodel.set(index1, messageSeenModel);
+                    messageSeenAdapter.notifyDataSetChanged();
+                    //  listviewUsermess.setSelection(index1);
+                }
             }
 
             @Override
@@ -315,9 +322,11 @@ private ListView listviewUsermess;
 
                 MessageSeenModel messageSeenModel=dataSnapshot.getValue(MessageSeenModel.class);
 
-                int index =getItemIndex(messageSeenModel);
-                resultMessageSeenmodel.remove(index);
-                messageSeenAdapter.notifyDataSetChanged();
+                if(resultMessageSeenmodel.size()>0) {
+                    int index = getItemIndex(messageSeenModel);
+                    resultMessageSeenmodel.remove(index);
+                    messageSeenAdapter.notifyDataSetChanged();
+                }
 
             }
 
