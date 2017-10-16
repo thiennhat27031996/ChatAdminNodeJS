@@ -2,6 +2,9 @@ package com.techhub.chatadminnodejs;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Handler;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
@@ -50,6 +53,8 @@ import com.techhub.chatadminnodejs.ClassUse.CheckinternetToat;
 import com.techhub.chatadminnodejs.OBJ.Message;
 import com.techhub.chatadminnodejs.OBJ.MessageSeen;
 import com.techhub.chatadminnodejs.OBJ.MessageSeenModel;
+import com.techhub.chatadminnodejs.Pref.Userinfo;
+import com.techhub.chatadminnodejs.Pref.Usersession;
 
 import org.jsoup.nodes.Comment;
 
@@ -92,6 +97,8 @@ private ListView listviewUsermess;
     private DatabaseReference databaseUsermessMainreference;
     static boolean Clickmenu=false;
     static boolean onstop=false;
+    private Usersession usersession;
+    private Userinfo userinfo;
 
 
 // during onCreate:
@@ -151,6 +158,7 @@ private ListView listviewUsermess;
         setContentView(R.layout.activity_main);
 
 
+        userinfo=new Userinfo(this);
 
 
         Anhxa();
@@ -188,6 +196,7 @@ private ListView listviewUsermess;
 
 
                 }
+
                 ShortcutBadger.applyCount(getApplicationContext(), questionsolved);
                 if(questionsolved==0){
                     ShortcutBadger.removeCount(getApplicationContext());//for 1.1.4+
@@ -213,7 +222,7 @@ private ListView listviewUsermess;
         String deviceToken= FirebaseInstanceId.getInstance().getToken();
         mUserDatabase=FirebaseDatabase.getInstance().getReference().child("DeviceAndroid");
         FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
-        final String current_user_id=currentFirebaseUser.getUid();
+        final String current_user_id=userinfo.getKeyUserid();
 
         mUserDatabase.child(current_user_id).child("device_token").setValue(deviceToken);
         mUserDatabase.child(current_user_id).child("user_id").setValue(current_user_id);
@@ -298,6 +307,7 @@ private ListView listviewUsermess;
 
 
 
+
             }
 
             @Override
@@ -315,6 +325,8 @@ private ListView listviewUsermess;
                     messageSeenAdapter.notifyDataSetChanged();
                     //  listviewUsermess.setSelection(index1);
                 }
+
+
             }
 
             @Override

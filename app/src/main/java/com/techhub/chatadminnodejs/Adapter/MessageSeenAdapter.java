@@ -3,6 +3,10 @@ package com.techhub.chatadminnodejs.Adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
@@ -77,25 +81,40 @@ public class MessageSeenAdapter extends BaseAdapter {
 
         }
 
-        MessageSeenModel messageseen=(MessageSeenModel) getItem(position);
+        final MessageSeenModel messageseen=(MessageSeenModel) getItem(position);
         viewloaisphld.tvuser.setText(messageseen.name);
         viewloaisphld.tvlastmessage.setText(messageseen.lastmessage);
-        int index=0;
+
+
+      /*  final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(messageseen.seen.equals("false")) {
+                    // Do something after 5s = 5000ms
+                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    Ringtone r = RingtoneManager.getRingtone(context, notification);
+                    r.play();
+                }
+
+            }
+        }, 2000);*/
+
 
         if(messageseen.seen.equals("true")){
-            index=0;
+
             viewloaisphld.tvuser.setText(messageseen.name);
             viewloaisphld.tvuser.setTypeface(viewloaisphld.tvuser.getTypeface(), Typeface.NORMAL);
             viewloaisphld.tvuser.setTextColor(ContextCompat.getColor(context, R.color.messSeen));
             viewloaisphld.tvlastmessage.setTextColor(ContextCompat.getColor(context, R.color.messSeen));
         }else{
-            index++;
 
             viewloaisphld.tvuser.setText(messageseen.name);
             viewloaisphld.tvuser.setTypeface(viewloaisphld.tvuser.getTypeface(),Typeface.BOLD);
             viewloaisphld.tvuser.setTextColor(ContextCompat.getColor(context, R.color.messSeenYet));
             viewloaisphld.tvlastmessage.setTextColor(ContextCompat.getColor(context, R.color.messSeenYet));
         }
+
         //picasso cho phep khi load anh thi co anh nen va hein error khi k load duoc
 
         return view;

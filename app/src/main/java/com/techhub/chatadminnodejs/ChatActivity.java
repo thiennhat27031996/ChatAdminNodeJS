@@ -269,15 +269,21 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 int questionsolved = 0;
+                int a;
                 for(DataSnapshot snapShot   :dataSnapshot.getChildren()){
 
                     String checkCorrectAnswer = snapShot.child("seen").getValue(String.class);
                     String checkname=snapShot.child("name").getValue(String.class);
                     if (checkCorrectAnswer.equals("false") && !checkname.equals(room_name) ) {
+
                         questionsolved = questionsolved + 1;
+
                     }
+                  //  a=questionsolved;
 
                 }
+
+            //    CheckinternetToat.toastcheckinternet(ChatActivity.this,"a:"+a +"b:"+questionsolved);
                 tvbagecout.setText(String.valueOf(questionsolved));
                 if(tvbagecout.getText().equals("0")){
                     tvbagecout.setVisibility(View.INVISIBLE);
