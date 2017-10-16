@@ -296,12 +296,49 @@ private ListView listviewUsermess;
 
 
     private void updateList(){
+      /*  databaseUsermessMainreference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot snapShot   :dataSnapshot.getChildren()){
+
+                    String checkCorrectAnswer = snapShot.child("seen").getValue(String.class);
+                    if (checkCorrectAnswer.equals("false")) {
+                        CheckinternetToat.toastcheckinternet(MainActivity.this,snapShot.getKey());
+
+                    }
+
+
+                }
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });*/
         databaseUsermessMainreference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+
+
+                    String checkCorrectAnswer = dataSnapshot.child("seen").getValue(String.class);
+                    if (checkCorrectAnswer.equals("false")) {
+                        //CheckinternetToat.toastcheckinternet(MainActivity.this,snapShot.getKey());
+                        resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
+                          messageSeenAdapter.notifyDataSetChanged();
+                    }
+
+                          //  }
+
+
                //CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.getValue(MessageSeenModel.class).toString());
-               resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
-                messageSeenAdapter.notifyDataSetChanged();
+              // resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
+              //  messageSeenAdapter.notifyDataSetChanged();
+
+
 
 
 
@@ -313,8 +350,7 @@ private ListView listviewUsermess;
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-
-                MessageSeenModel messageSeenModel=dataSnapshot.getValue(MessageSeenModel.class);
+              /*  MessageSeenModel messageSeenModel=dataSnapshot.getValue(MessageSeenModel.class);
 
 
                 if(resultMessageSeenmodel.size()>0) {
@@ -324,7 +360,31 @@ private ListView listviewUsermess;
                     resultMessageSeenmodel.set(index1, messageSeenModel);
                     messageSeenAdapter.notifyDataSetChanged();
                     //  listviewUsermess.setSelection(index1);
+                }*/
+                MessageSeenModel messageSeenModel=dataSnapshot.getValue(MessageSeenModel.class);
+
+
+
+                String checkCorrectAnswer = dataSnapshot.child("seen").getValue(String.class);
+                if (checkCorrectAnswer.equals("false")) {
+                    if(resultMessageSeenmodel.size()>0) {
+                        int index1 = getItemIndex(messageSeenModel);
+                        //   listviewUsermess.smoothScrollToPositionFromTop(0,index1);
+
+                        resultMessageSeenmodel.set(index1, messageSeenModel);
+                        messageSeenAdapter.notifyDataSetChanged();
+                        //  listviewUsermess.setSelection(index1);
+                    }
                 }
+                else{
+                    if(resultMessageSeenmodel.size()>0) {
+                        int index = getItemIndex(messageSeenModel);
+                        resultMessageSeenmodel.remove(index);
+                        messageSeenAdapter.notifyDataSetChanged();
+                    }
+
+                }
+
 
 
             }

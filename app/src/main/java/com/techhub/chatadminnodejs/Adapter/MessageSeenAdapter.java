@@ -22,6 +22,7 @@ import com.techhub.chatadminnodejs.OBJ.MessageSeen;
 import com.techhub.chatadminnodejs.OBJ.MessageSeenModel;
 import com.techhub.chatadminnodejs.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,6 +46,7 @@ public class MessageSeenAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
+
         return list.get(position);
     }
 
@@ -103,10 +105,12 @@ public class MessageSeenAdapter extends BaseAdapter {
 
         if(messageseen.seen.equals("true")){
 
+
             viewloaisphld.tvuser.setText(messageseen.name);
             viewloaisphld.tvuser.setTypeface(viewloaisphld.tvuser.getTypeface(), Typeface.NORMAL);
             viewloaisphld.tvuser.setTextColor(ContextCompat.getColor(context, R.color.messSeen));
             viewloaisphld.tvlastmessage.setTextColor(ContextCompat.getColor(context, R.color.messSeen));
+
         }else{
 
             viewloaisphld.tvuser.setText(messageseen.name);
