@@ -13,12 +13,14 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -47,6 +49,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
@@ -85,6 +88,7 @@ public class ChatActivity extends AppCompatActivity {
    // Button btnguitinnhanjv;
     ViewChatBar chatbar;
     ImageButton btnthemanh;
+    SwipeRefreshLayout swipeRefreshLayout;
 
 
     ArrayList<Message> mangchat;
@@ -104,7 +108,11 @@ public class ChatActivity extends AppCompatActivity {
     private Uri filepath;
     private boolean delete=false;
     private static final    int GALLERY_INTENT=2;
-
+    private static final int TOTAL_ITEM_LOAD=10;
+    private int mCurrentpage=1;
+    private int itemPos=0;
+    private String mLastKey="";
+    private String mPrevKey="";
 
 
 
@@ -335,6 +343,14 @@ public class ChatActivity extends AppCompatActivity {
 
 
         updateList();
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mCurrentpage++;
+                itemPos=0;
+                updateMoreList();
+            }
+        });
 
 
 
@@ -343,6 +359,71 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
+
+
+
+
+
+
+
+
+    }
+
+    private void updateMoreList() {
+        Query databaseUsermessChatreferencelast=databaseUsermessChatreference.orderByKey().endAt(mLastKey).limitToLast(10);
+        databaseUsermessChatreferencelast.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                String messageKey=dataSnapshot.getKey();
+
+
+                if(!mPrevKey.equals(messageKey) && !mLastKey.equals(messageKey)){
+                    mangchat.add(itemPos++,dataSnapshot.getValue(Message.class));
+                }else{
+                    mPrevKey=mLastKey;
+                }
+                if(itemPos==1){
+
+                    mLastKey=messageKey;
+                }
+                if(itemPos==0){
+                    CheckinternetToat.toastcheckinternet(ChatActivity.this,"No more Message");
+                }
+
+               // Log.d("ToTalkey","Last key:"+mLastKey+"| prevkey :"+mPrevKey+"|message key:"+messageKey +"|item pos " +itemPos);
+
+
+
+
+
+                messageAdapter.notifyDataSetChanged();
+               // recyclerViewnhantin.scrollToPosition(mangchat.size()-1);
+
+                swipeRefreshLayout.setRefreshing(false);
+               // CheckinternetToat.toastcheckinternet(getApplicationContext(),mLastKey + mPrevKey + itemPos);
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
     }
 
@@ -352,14 +433,24 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
     private void updateList(){
-        databaseUsermessChatreference.addChildEventListener(new ChildEventListener() {
+        Query databaseUsermessChatreferencelast=databaseUsermessChatreference.limitToLast(mCurrentpage * TOTAL_ITEM_LOAD);
+        databaseUsermessChatreferencelast.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
+
+                itemPos++;
+                if(itemPos==1){
+                    String messageKey=dataSnapshot.getKey();
+                    mLastKey=messageKey;
+                    mPrevKey=messageKey;
+                }
                 mangchat.add(dataSnapshot.getValue(Message.class));
 
                 messageAdapter.notifyDataSetChanged();
                 recyclerViewnhantin.scrollToPosition(mangchat.size()-1);
+
+                swipeRefreshLayout.setRefreshing(false);
                // Message message=dataSnapshot.getValue(Message.class);
                // int index =getItemIndex(message);
               //  CheckinternetToat.toastcheckinternet(ChatActivity.this,mangchat.get(index).getUrl());
@@ -542,6 +633,7 @@ public class ChatActivity extends AppCompatActivity {
         toolbarmhchat=(Toolbar)findViewById(R.id.toolbarmhchat);
         recyclerViewnhantin=(RecyclerView) findViewById(R.id.rclmainchat);
         listViewmenutinnhan=(ListView)findViewById(R.id.lvmenutinnhan);
+        swipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.refreshlayout);
         navigationViewchat=(NavigationView)findViewById(R.id.navigationviewchat);
         drawerLayoutchat=(DrawerLayout)findViewById(R.id.drawerlayoutchat);
         tvbagecout=(TextView)findViewById(R.id.tvcartnb) ;
@@ -560,6 +652,7 @@ public class ChatActivity extends AppCompatActivity {
         mangchat=new ArrayList<>();
         messageAdapter=new MessageAdapter(mangchat,getApplicationContext());
         recyclerViewnhantin.setAdapter(messageAdapter);
+
 
         databaseUsermessMain=FirebaseDatabase.getInstance();
         databaseUsermessMainreference=databaseUsermessMain.getReference("OnlineMess");
