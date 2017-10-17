@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
      static ArrayList<MessageSeen> arrayListusermess;
     static ListUserMessageAdapter listUserMessageAdapter;
 
+    TextView tvcardcout;
     NavigationView navigationView;
     ListView listViewmenumhc,lvphong;
     DrawerLayout drawerLayout;
@@ -198,7 +199,10 @@ private ListView listviewUsermess;
                 }
 
                 ShortcutBadger.applyCount(getApplicationContext(), questionsolved);
+
+                tvcardcout.setText(questionsolved);
                 if(questionsolved==0){
+
                     ShortcutBadger.removeCount(getApplicationContext());//for 1.1.4+
                 }
 
@@ -250,6 +254,8 @@ private ListView listviewUsermess;
 
 
     private void Anhxa() {
+        tvcardcout=(TextView)findViewById(R.id.tvcartnb);
+        tvcardcout.setVisibility(View.INVISIBLE);
 
         toolbarmhc = (Toolbar) findViewById(R.id.toolbarmhc);
         listViewmenumhc = (ListView) findViewById(R.id.lvmenutrangchu);

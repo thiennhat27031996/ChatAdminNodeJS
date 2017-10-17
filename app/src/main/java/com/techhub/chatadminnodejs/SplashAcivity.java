@@ -46,7 +46,7 @@ public class SplashAcivity extends AppCompatActivity {
         session= new Usersession(this);
         userinfo = new Userinfo(this);
         if(session.isUserLoggedin()){
-            startActivity(new Intent(this,MainActivity.class));
+            startActivity(new Intent(this,TrangChuActivity.class));
             finish();
         }
 
@@ -155,7 +155,7 @@ public class SplashAcivity extends AppCompatActivity {
                             session.setLoggedin(true);
                             userinfo.setUserid(current_user_id);
                             userinfo.setUsertoken(deviceToken);
-                            Intent intent = new Intent(SplashAcivity.this, MainActivity.class);
+                            Intent intent = new Intent(SplashAcivity.this, TrangChuActivity.class);
                             startActivity(intent);
                             finish();
                         }

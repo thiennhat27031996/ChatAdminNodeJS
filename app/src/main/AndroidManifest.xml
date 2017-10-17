@@ -3,7 +3,7 @@
     package="com.techhub.chatadminnodejs">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -12,13 +12,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <service
-            android:name=".Notifications.FirebaseMessagingService">
+        <service android:name=".Notifications.FirebaseMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
 
         <activity android:name=".SplashAcivity">
             <intent-filter>
@@ -27,13 +25,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChatActivity" >
+        <activity android:name=".ChatActivity">
             <intent-filter>
-                <action android:name="com.techhub.chatadminnodejs_NOTIFICATION" ></action>
-                <category android:name="android.intent.category.DEFAULT"></category>
+                <action android:name="com.techhub.chatadminnodejs_NOTIFICATION" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MainActivity" />
+        <activity android:name=".TrangChuActivity"></activity>
     </application>
 
 </manifest>
