@@ -1,6 +1,7 @@
 package com.techhub.chatadminnodejs;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -12,11 +13,14 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -95,7 +99,10 @@ public class ChatActivity extends AppCompatActivity {
     private DatabaseReference databaseUsermessChatreferenceMain;
     private FirebaseStorage mstorage;
     private StorageReference mStoragethemanh;
+    private DatabaseReference databaseUsermessMainreference;
+    private DatabaseReference databaseUsermessMainreferenceMessagedelete;
     private Uri filepath;
+    private boolean delete=false;
     private static final    int GALLERY_INTENT=2;
 
 
@@ -114,8 +121,9 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        offline();
         updateseen();
+
+
 
 
 
@@ -125,32 +133,11 @@ public class ChatActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         updateseen();
-        online();
-
-
-    }
-    private void online(){
-        DatabaseReference ref1 = FirebaseDatabase.getInstance().getReference().child("DeviceAndroid");
-
-        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
-        final String current_user_id=currentFirebaseUser.getUid();
-
-        ref1.child(current_user_id).child("online").setValue("true");
 
 
 
     }
-    private void offline(){
-        DatabaseReference ref1 = FirebaseDatabase.getInstance().getReference().child("DeviceAndroid");
 
-        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
-        final String current_user_id=currentFirebaseUser.getUid();
-
-        ref1.child(current_user_id).child("online").setValue("false");
-
-
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,6 +152,7 @@ public class ChatActivity extends AppCompatActivity {
         Firebase2();
         SendImagefirebase();
         Getcoutunreadmess();
+
 
     }
 
@@ -359,7 +347,9 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void updateseen(){
-        databaseUsermessChatreferenceMain.child("seen").setValue("true");
+        if(delete==false) {
+            databaseUsermessChatreferenceMain.child("seen").setValue("true");
+        }
     }
     private void updateList(){
         databaseUsermessChatreference.addChildEventListener(new ChildEventListener() {
@@ -490,11 +480,43 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.menuxoachat,menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menuxoa:
+                AlertDialog.Builder builder=new AlertDialog.Builder(ChatActivity.this);
+                builder.setTitle("Confirm");
+                builder.setMessage("Are you sure you want to delete the selected item?");
+                builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        databaseUsermessMainreference.child(room_name).removeValue();
+                        databaseUsermessMainreferenceMessagedelete.child(room_name).removeValue();
+                        delete=true;
+                        finish();
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-
-
-
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alert=builder.create();
+                alert.show();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     private void Actionbar() {
 
@@ -539,6 +561,9 @@ public class ChatActivity extends AppCompatActivity {
         messageAdapter=new MessageAdapter(mangchat,getApplicationContext());
         recyclerViewnhantin.setAdapter(messageAdapter);
 
+        databaseUsermessMain=FirebaseDatabase.getInstance();
+        databaseUsermessMainreference=databaseUsermessMain.getReference("OnlineMess");
+        databaseUsermessMainreferenceMessagedelete=FirebaseDatabase.getInstance().getReference("MessageSeen");
 
 
 

@@ -1,5 +1,6 @@
 package com.techhub.chatadminnodejs;
 
+import android.content.Intent;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -8,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,6 +36,7 @@ public class TrangChuActivity extends AppCompatActivity {
     private Usersession usersession;
     private Userinfo userinfo;
     TextView tvcardcout;
+    Button btnlogout;
 
 
     private DatabaseReference mUserDatabase;
@@ -67,6 +70,7 @@ public class TrangChuActivity extends AppCompatActivity {
         final String current_user_id=currentFirebaseUser.getUid();
 
         ref1.child(current_user_id).child("online").setValue("true");
+
 
 
 
@@ -141,15 +145,29 @@ public class TrangChuActivity extends AppCompatActivity {
 
     private void Anhxa() {
         userinfo=new Userinfo(this);
+        usersession=new Usersession(this);
         tvcardcout=(TextView)findViewById(R.id.tvcartnb);
         tvcardcout.setVisibility(View.INVISIBLE);
 
+
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerlayout);
 
-        ViewPager viewPager=(ViewPager)findViewById(R.id.viewpagemhc);
+        final ViewPager viewPager=(ViewPager)findViewById(R.id.viewpagemhc);
         viewPager.setAdapter(new FragmentAdapter(getSupportFragmentManager(),this));
         tabLayout =(TabLayout)findViewById(R.id.tablayoutmenu);
         tabLayout.setupWithViewPager(viewPager);
+        btnlogout=(Button)findViewById(R.id.btnlogout);
+        btnlogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                userinfo.clearUserinfo();
+                usersession.setLoggedin(false);
+                Intent intent=new Intent(TrangChuActivity.this,SplashAcivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
 
     }
 }

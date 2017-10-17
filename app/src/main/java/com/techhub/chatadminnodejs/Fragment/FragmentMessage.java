@@ -1,5 +1,6 @@
 package com.techhub.chatadminnodejs.Fragment;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,11 +35,11 @@ import java.util.List;
 
 public class FragmentMessage extends Fragment {
     private ListView listviewUsermess;
-    private List<MessageSeenModel> resultMessageSeenmodel;
-    private MessageSeenAdapter messageSeenAdapter;
+    private static List<MessageSeenModel> resultMessageSeenmodel;
+    private static MessageSeenAdapter messageSeenAdapter;
     private FirebaseDatabase databaseUsermessMain;
     private DatabaseReference databaseUsermessMainreference;
-
+    private DatabaseReference databaseUsermessMainreferenceMessagedelete;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Nullable
@@ -58,6 +60,7 @@ public class FragmentMessage extends Fragment {
 
         databaseUsermessMain=FirebaseDatabase.getInstance();
         databaseUsermessMainreference=databaseUsermessMain.getReference("OnlineMess");
+        databaseUsermessMainreferenceMessagedelete=FirebaseDatabase.getInstance().getReference("MessageSeen");
 
 
 
@@ -77,6 +80,32 @@ public class FragmentMessage extends Fragment {
                 //Toast.makeText(getApplicationContext(),,Toast.LENGTH_LONG).show();
             }
         });
+        listviewUsermess.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                AlertDialog.Builder builder=new AlertDialog.Builder(getContext());
+                builder.setTitle("Confirm");
+                builder.setMessage("Are you sure you want to delete the selected item?");
+                builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        databaseUsermessMainreference.child(resultMessageSeenmodel.get(position).name).removeValue();
+                        databaseUsermessMainreferenceMessagedelete.child(resultMessageSeenmodel.get(position).name).removeValue();
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alert=builder.create();
+                alert.show();
+                return false;
+            }
+        });
 
     }
     private void updateList(){
@@ -84,27 +113,8 @@ public class FragmentMessage extends Fragment {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-
-
-             /*   String checkCorrectAnswer = dataSnapshot.child("seen").getValue(String.class);
-                if (checkCorrectAnswer.equals("false")) {
-                    //CheckinternetToat.toastcheckinternet(MainActivity.this,snapShot.getKey());
-                    resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
-                    messageSeenAdapter.notifyDataSetChanged();
-                }
-
-                //  }*/
-
-
-                //CheckinternetToat.toastcheckinternet(MainActivity.this,dataSnapshot.getValue(MessageSeenModel.class).toString());
                  resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
                  messageSeenAdapter.notifyDataSetChanged();
-
-
-
-
-
-
 
 
             }
@@ -117,36 +127,9 @@ public class FragmentMessage extends Fragment {
 
                 if(resultMessageSeenmodel.size()>0) {
                     int index1 = getItemIndex(messageSeenModel);
-                    //   listviewUsermess.smoothScrollToPositionFromTop(0,index1);
-
                     resultMessageSeenmodel.set(index1, messageSeenModel);
                     messageSeenAdapter.notifyDataSetChanged();
-                    //  listviewUsermess.setSelection(index1);
                 }
-         /*       MessageSeenModel messageSeenModel=dataSnapshot.getValue(MessageSeenModel.class);
-
-
-
-                String checkCorrectAnswer = dataSnapshot.child("seen").getValue(String.class);
-                if (checkCorrectAnswer.equals("false")) {
-                    if(resultMessageSeenmodel.size()>0) {
-                        int index1 = getItemIndex(messageSeenModel);
-                        //   listviewUsermess.smoothScrollToPositionFromTop(0,index1);
-
-                        resultMessageSeenmodel.set(index1, messageSeenModel);
-                        messageSeenAdapter.notifyDataSetChanged();
-                        //  listviewUsermess.setSelection(index1);
-                    }
-                }
-                else{
-                    if(resultMessageSeenmodel.size()>0) {
-                        int index = getItemIndex(messageSeenModel);
-                        resultMessageSeenmodel.remove(index);
-                        messageSeenAdapter.notifyDataSetChanged();
-                    }
-
-                }*/
-
 
 
             }
@@ -175,8 +158,8 @@ public class FragmentMessage extends Fragment {
             }
         });
     }
-    private int getItemIndex(MessageSeenModel usermess){
-        int index=-1;
+    private static int getItemIndex(MessageSeenModel usermess){
+         int index=-1;
         for(int i=0;i<resultMessageSeenmodel.size();i++) {
             if(resultMessageSeenmodel.get(i).name.equals(usermess.name)){
                 index=i;

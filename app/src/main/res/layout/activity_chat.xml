@@ -48,8 +48,6 @@
                 android:layout_height="match_parent">
                <android.support.v7.widget.RecyclerView
 
-
-
                     android:layout_above="@+id/lntextsend"
                     android:id="@+id/rclmainchat"
                     android:clipToPadding="false"
