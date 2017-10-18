@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
-
-
 <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -27,6 +23,7 @@
         />
 
     <EditText
+
         app:layout_marginTopPercent="3%"
         android:layout_below="@+id/imageView"
         app:layout_widthPercent="70%"
@@ -62,7 +59,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
 
-          />
+        />
 
 
 

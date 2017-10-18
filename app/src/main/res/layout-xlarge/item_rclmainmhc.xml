@@ -3,49 +3,46 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_marginRight="30dp"
+    android:layout_marginLeft="30dp"
     android:layout_alignParentRight="true"
     android:layout_height="wrap_content">
     <com.daasuu.bl.BubbleLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="24dp"
         android:padding="8dp"
-        android:layout_alignParentLeft="true"
-
-
-        app:bl_arrowDirection="left"
-        app:bl_arrowHeight="10dp"
+        android:layout_alignParentRight="true"
+        app:bl_arrowDirection="right"
+        app:bl_arrowHeight="20dp"
         app:bl_arrowPosition="16dp"
-        app:bl_arrowWidth="10dp"
-        app:bl_bubbleColor="#dadadee9"
+        app:bl_arrowWidth="16dp"
+        app:bl_bubbleColor="#2a45ba"
         app:bl_cornersRadius="25dp">
 
         <RelativeLayout
-            android:padding="5dp"
-
+            android:padding="15dp"
             android:gravity="center_vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <TextView
-
                 android:visibility="gone"
-                android:textColor="#050505"
+                android:textColor="#ffffff"
                 android:id="@+id/idnguoiguitin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="nguoi gui: "/>
             <TextView
-                android:textColor="#050505"
+                android:textSize="30dp"
+                android:textColor="#ffffff"
                 android:id="@+id/textnguoigui"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="noidung"/>
+                android:text="day la text"/>
             <ImageView
                 android:id="@+id/imvtinnhan"
                 android:scaleType="fitXY"
-                android:layout_width="150dp"
-                android:layout_height="150dp" />
+                android:layout_width="350dp"
+                android:layout_height="350dp" />
         </RelativeLayout>
 
     </com.daasuu.bl.BubbleLayout>

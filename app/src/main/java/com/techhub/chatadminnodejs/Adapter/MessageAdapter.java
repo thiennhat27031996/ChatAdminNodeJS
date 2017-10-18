@@ -61,7 +61,7 @@ public  class  MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Messag
        holder.tvmes.setText(message.lastmessage);
         if(!message.url.equals("null")) {
             holder.imvmes.setVisibility(View.VISIBLE);
-            Picasso.with(context).load(message.url).resize(300,250).error(R.drawable.error).placeholder(R.drawable.progress_animation).into(holder.imvmes);
+            Picasso.with(context).load(message.url).error(R.drawable.error).placeholder(R.drawable.progress_animation).into(holder.imvmes);
         }
         else{
             holder.imvmes.setVisibility(View.GONE);

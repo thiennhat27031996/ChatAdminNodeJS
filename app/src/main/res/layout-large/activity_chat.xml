@@ -20,13 +20,13 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                <android.support.v7.widget.Toolbar
-                    app:title="Tin nhắn"
-                    app:titleTextColor="#ffffff"
-                    android:background="#2a45ba"
-                    android:id="@+id/toolbarmhchat"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"></android.support.v7.widget.Toolbar>
+                    <android.support.v7.widget.Toolbar
+                        app:title="Tin nhắn"
+                        app:titleTextColor="#ffffff"
+                        android:background="#2a45ba"
+                        android:id="@+id/toolbarmhchat"
+                        android:layout_width="match_parent"
+                        android:layout_height="?attr/actionBarSize"></android.support.v7.widget.Toolbar>
                     <TextView
 
                         android:layout_marginLeft="10dp"
@@ -34,16 +34,16 @@
                         android:gravity="center"
                         android:id="@+id/tvcartnb"
                         android:layout_marginTop="5dp"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:textSize="10sp"
+                        android:padding="5dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20dp"
                         android:textColor="#fffffe"
                         android:text="0"/>
                 </RelativeLayout>
             </android.support.design.widget.AppBarLayout>
             <RelativeLayout
                 android:background="#9affffff"
-
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <android.support.v4.widget.SwipeRefreshLayout
@@ -52,13 +52,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
                     <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rclmainchat"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
-                    android:clipToPadding="false"
-                    android:divider="@null"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
+                        android:id="@+id/rclmainchat"
+                        android:paddingTop="15dp"
+                        android:paddingBottom="15dp"
+                        android:clipToPadding="false"
+                        android:divider="@null"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
                 </android.support.v4.widget.SwipeRefreshLayout>
 
                 <android.support.v7.widget.CardView
@@ -70,54 +70,54 @@
 
                     card_view:cardElevation="10dp"
                     card_view:cardCornerRadius="0dp">
-                <LinearLayout
+                    <LinearLayout
 
 
 
-                    android:gravity="center_vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    >
-                    <ImageButton
-                        android:clickable="true"
-                        android:id="@+id/btnthemanh"
-                        android:background="@android:color/transparent"
-                        android:layout_width="0dp"
-                        android:layout_height="50dp"
-                        android:layout_weight="1"
-                        android:src="@drawable/iconimage"/>
-
-                    <org.lunainc.chatbar.ViewChatBar
-                        android:id="@+id/chatbar"
-                        android:layout_marginTop="5dp"
-                        android:layout_weight="7"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content">
-
-                    </org.lunainc.chatbar.ViewChatBar>
-                   <!-- <ImageView
-                        android:padding="5dp"
-                        android:alpha="0.5"
-                        android:src="@drawable/iocnimagenormal"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp" />
-                    <EditText
-                        android:id="@+id/edtnoidungtinnhan"
-                        android:layout_width="0dp"
+                        android:gravity="center_vertical"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:inputType="text"/>
-                    <Button
-                        android:id="@+id/btnguitinnhan"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Send"
-                        android:textAllCaps="false"
-                        />-->
+                        android:orientation="horizontal"
+                        >
+                        <ImageButton
+                            android:clickable="true"
+                            android:id="@+id/btnthemanh"
+                            android:background="@android:color/transparent"
+                            android:layout_width="0dp"
+                            android:layout_height="70dp"
+                            android:layout_weight="1"
+                            android:src="@drawable/iconimage"/>
 
-                </LinearLayout>
-               </android.support.v7.widget.CardView>
+                        <org.lunainc.chatbar.ViewChatBar
+                            android:id="@+id/chatbar"
+                            android:layout_marginTop="5dp"
+                            android:layout_weight="7"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content">
+
+                        </org.lunainc.chatbar.ViewChatBar>
+                        <!-- <ImageView
+                             android:padding="5dp"
+                             android:alpha="0.5"
+                             android:src="@drawable/iocnimagenormal"
+                             android:layout_width="40dp"
+                             android:layout_height="40dp" />
+                         <EditText
+                             android:id="@+id/edtnoidungtinnhan"
+                             android:layout_width="0dp"
+                             android:layout_height="wrap_content"
+                             android:layout_weight="1"
+                             android:inputType="text"/>
+                         <Button
+                             android:id="@+id/btnguitinnhan"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="Send"
+                             android:textAllCaps="false"
+                             />-->
+
+                    </LinearLayout>
+                </android.support.v7.widget.CardView>
             </RelativeLayout>
         </LinearLayout>
         <android.support.design.widget.NavigationView

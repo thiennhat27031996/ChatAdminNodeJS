@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.techhub.chatadminnodejs.TrangChuActivity">
+
+
+    <android.support.v4.widget.DrawerLayout
+        android:id="@+id/drawerlayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <RelativeLayout
+            android:id="@+id/toolbarmhc1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <android.support.design.widget.CoordinatorLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.design.widget.AppBarLayout
+                    android:id="@+id/appbarmhc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:theme="@style/ThemeOverlay.AppCompat.Light">
+                    <RelativeLayout
+
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <android.support.design.widget.TabLayout
+                            android:id="@+id/tablayoutmenu"
+                            android:layout_width="match_parent"
+                            android:layout_height="60dp"
+                            android:background="#ffffff"
+                            app:tabGravity="fill"
+                            app:tabIndicatorColor="#858381"
+                            app:tabIndicatorHeight="3dp"
+                            app:tabMode="fixed"
+                            app:tabSelectedTextColor="#646362"
+                            app:tabTextAppearance="@style/TabLayoutStyle"
+                            app:tabTextColor="#969390"></android.support.design.widget.TabLayout>
+                    </RelativeLayout>
+                </android.support.design.widget.AppBarLayout>
+
+
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/viewpagemhc"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    >
+                </android.support.v4.view.ViewPager>
+
+
+            </android.support.design.widget.CoordinatorLayout>
+
+            <android.support.design.widget.CoordinatorLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <RelativeLayout
+
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+
+                        android:id="@+id/tvcartnb"
+                        android:padding="4dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginTop="5dp"
+                        android:textSize="20dp"
+                        android:background="@drawable/padingbagecart"
+                        android:gravity="center"
+                        android:text="0"
+                        android:textColor="#fffffe" />
+                </RelativeLayout>
+            </android.support.design.widget.CoordinatorLayout>
+
+
+            <Button
+                android:id="@+id/btnlogout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="logout"
+                android:layout_alignParentBottom="true"/>
+
+        </RelativeLayout>
+
+
+        <android.support.design.widget.NavigationView
+            android:id="@+id/navigationview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+
+            android:layout_gravity="start"
+            android:background="#a20e0e0e">
+
+            <LinearLayout
+
+                android:layout_width="match_parent"
+
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ListView
+                        android:id="@+id/lvmenutrangchu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:divider="@android:color/transparent"
+                        android:dividerHeight="0dp"></ListView>
+
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+
+        </android.support.design.widget.NavigationView>
+
+
+    </android.support.v4.widget.DrawerLayout>
+</android.support.design.widget.CoordinatorLayout>

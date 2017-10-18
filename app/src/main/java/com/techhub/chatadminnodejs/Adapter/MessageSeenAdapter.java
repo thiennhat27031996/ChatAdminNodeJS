@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -86,6 +87,7 @@ public class MessageSeenAdapter extends BaseAdapter {
         final MessageSeenModel messageseen=(MessageSeenModel) getItem(position);
         viewloaisphld.tvuser.setText(messageseen.name);
         viewloaisphld.tvlastmessage.setText(messageseen.lastmessage);
+        viewloaisphld.tvlastmessage.setEllipsize(TextUtils.TruncateAt.END);
 
 
       /*  final Handler handler = new Handler();
@@ -105,15 +107,12 @@ public class MessageSeenAdapter extends BaseAdapter {
 
         if(messageseen.seen.equals("true")){
 
-
-            viewloaisphld.tvuser.setText(messageseen.name);
             viewloaisphld.tvuser.setTypeface(viewloaisphld.tvuser.getTypeface(), Typeface.NORMAL);
             viewloaisphld.tvuser.setTextColor(ContextCompat.getColor(context, R.color.messSeen));
             viewloaisphld.tvlastmessage.setTextColor(ContextCompat.getColor(context, R.color.messSeen));
 
         }else{
 
-            viewloaisphld.tvuser.setText(messageseen.name);
             viewloaisphld.tvuser.setTypeface(viewloaisphld.tvuser.getTypeface(),Typeface.BOLD);
             viewloaisphld.tvuser.setTextColor(ContextCompat.getColor(context, R.color.messSeenYet));
             viewloaisphld.tvlastmessage.setTextColor(ContextCompat.getColor(context, R.color.messSeenYet));

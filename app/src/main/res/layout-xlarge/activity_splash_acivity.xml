@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
-
-
 <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -13,8 +9,6 @@
     android:background="@drawable/loginimggb"
 
     tools:context="com.techhub.chatadminnodejs.SplashAcivity">
-
-
     <ImageView
         app:layout_marginTopPercent="3%"
         app:layout_marginLeftPercent="10%"
@@ -27,6 +21,8 @@
         />
 
     <EditText
+        android:textSize="25dp"
+
         app:layout_marginTopPercent="3%"
         android:layout_below="@+id/imageView"
         app:layout_widthPercent="70%"
@@ -38,14 +34,9 @@
         android:inputType="textPassword"
 
         />
-
-
-
-
-
-
     <com.dd.CircularProgressButton
         android:id="@+id/btnlogin"
+        android:textSize="25dp"
 
         app:cpb_cornerRadius="2dp"
         app:cpb_textError="False"
@@ -62,18 +53,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
 
-          />
-
-
-
-
-
-
-
-
-
-
-
+        />
     <ImageView
         android:id="@+id/imageView"
         app:layout_marginTopPercent="35%"
@@ -86,6 +66,7 @@
         />
 
     <EditText
+        android:textSize="25dp"
         android:id="@+id/edtemail"
         app:layout_widthPercent="70%"
         app:layout_marginTopPercent="35%"

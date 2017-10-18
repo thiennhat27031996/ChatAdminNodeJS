@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -585,14 +586,58 @@ public class ChatActivity extends AppCompatActivity {
                 AlertDialog.Builder builder=new AlertDialog.Builder(ChatActivity.this);
                 builder.setTitle("Confirm");
                 builder.setMessage("Are you sure you want to delete the selected item?");
+
                 builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        databaseUsermessMainreference.child(room_name).removeValue();
-                        databaseUsermessMainreferenceMessagedelete.child(room_name).removeValue();
-                        delete=true;
-                        finish();
+                    public void onClick(final DialogInterface dialog, int which) {
+                        final ProgressDialog progressDialog= new ProgressDialog(ChatActivity.this);
+                        progressDialog.setTitle("Delete...");
+                        progressDialog.show();
+
+                        databaseUsermessMainreferenceMessagedelete.child(room_name).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                for(DataSnapshot child :dataSnapshot.getChildren()){
+                                    String url=child.child("url").getValue().toString();
+
+
+                                   if(!url.equals("null")){
+
+                                        StorageReference ref=FirebaseStorage.getInstance().getReferenceFromUrl(url);
+
+                                       ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+
+                                            }
+                                        });
+                                        //delete=delete+1;
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+                        final Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                //Do something after 100ms
+
+                                progressDialog.dismiss();
+                                databaseUsermessMainreference.child(room_name).removeValue();
+                                databaseUsermessMainreferenceMessagedelete.child(room_name).removeValue();
+                                delete=true;
+                               finish();
+
+                            }
+                        }, 3000);
                         dialog.dismiss();
+
                     }
                 });
                 builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {

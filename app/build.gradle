@@ -62,6 +62,7 @@ dependencies {
     compile 'me.leolin:ShortcutBadger:1.1.18@aar'
     compile 'com.android.support:support-v4:23.4.0'
     compile 'com.github.paolorotolo:expandableheightlistview:1.0.0'
+
     testCompile 'junit:junit:4.12'
 }
 

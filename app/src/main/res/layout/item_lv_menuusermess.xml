@@ -41,6 +41,8 @@
         android:layout_marginLeft="5dp"
         android:textSize="15sp"
         android:textColor="#232221"
+        android:maxWidth="200dp"
+        android:maxLines="1"
         android:id="@+id/tvlassmessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
