@@ -21,6 +21,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.techhub.chatadminnodejs.ClassUse.CheckinternetToat;
 import com.techhub.chatadminnodejs.Pref.Userinfo;
 import com.techhub.chatadminnodejs.Pref.Usersession;
 
@@ -147,13 +148,13 @@ public class SplashAcivity extends AppCompatActivity {
                             edtpass.setEnabled(true);
                             inProgress=false;
                             String deviceToken= FirebaseInstanceId.getInstance().getToken();
-                            mUserDatabase= FirebaseDatabase.getInstance().getReference().child("DeviceAndroid");
                             FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
-                            final String current_user_id=currentFirebaseUser.getUid();
-                            mUserDatabase.child(current_user_id).child("device_token").setValue(deviceToken);
-                            mUserDatabase.child(current_user_id).child("user_id").setValue(current_user_id);
-                            session.setLoggedin(true);
-                            userinfo.setUserid(current_user_id);
+                           mUserDatabase= FirebaseDatabase.getInstance().getReference().child("DeviceAndroid");
+                            mUserDatabase.child( currentFirebaseUser.getUid()).child("device_token").setValue(deviceToken);
+                            mUserDatabase.child( currentFirebaseUser.getUid()).child("user_id").setValue( currentFirebaseUser.getUid());
+                            //CheckinternetToat.toastcheckinternet(SplashAcivity.this,currentFirebaseUser.getUid());
+                           session.setLoggedin(true);
+                            userinfo.setUserid( currentFirebaseUser.getUid());
                             userinfo.setUsertoken(deviceToken);
                             Intent intent = new Intent(SplashAcivity.this, TrangChuActivity.class);
                             startActivity(intent);

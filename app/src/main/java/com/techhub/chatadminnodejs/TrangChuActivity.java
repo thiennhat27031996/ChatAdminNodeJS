@@ -64,27 +64,8 @@ public class TrangChuActivity extends AppCompatActivity {
     }
 
     private void online(){
-        DatabaseReference ref1 = FirebaseDatabase.getInstance().getReference().child("DeviceAndroid");
-
-        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
-        final String current_user_id=currentFirebaseUser.getUid();
-
-        ref1.child(current_user_id).child("online").setValue("true");
-
-
-
-
     }
     private void offline(){
-        DatabaseReference ref1 = FirebaseDatabase.getInstance().getReference().child("DeviceAndroid");
-
-        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
-        final String current_user_id=currentFirebaseUser.getUid();
-
-        ref1.child(current_user_id).child("online").setValue("false");
-
-
-
     }
     private void Getcoutunreadmess() {
 
@@ -126,20 +107,6 @@ public class TrangChuActivity extends AppCompatActivity {
         });
     }
     private void getTokenid() {
-
-
-
-        String deviceToken= FirebaseInstanceId.getInstance().getToken();
-        mUserDatabase=FirebaseDatabase.getInstance().getReference().child("DeviceAndroid");
-        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
-        final String current_user_id=userinfo.getKeyUserid();
-
-        mUserDatabase.child(current_user_id).child("device_token").setValue(deviceToken);
-        mUserDatabase.child(current_user_id).child("user_id").setValue(current_user_id);
-
-
-
-
 
     }
 

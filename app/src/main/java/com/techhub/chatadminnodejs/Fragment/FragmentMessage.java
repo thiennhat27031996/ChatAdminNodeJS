@@ -41,6 +41,8 @@ public class FragmentMessage extends Fragment {
     private DatabaseReference databaseUsermessMainreference;
     private DatabaseReference databaseUsermessMainreferenceMessagedelete;
 
+
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Nullable
     @Override

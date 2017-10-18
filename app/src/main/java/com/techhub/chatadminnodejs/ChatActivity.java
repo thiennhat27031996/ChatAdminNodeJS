@@ -1,6 +1,7 @@
 package com.techhub.chatadminnodejs;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -11,40 +12,26 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.firebase.ui.database.FirebaseListAdapter;
-import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.engineio.client.Socket;
 import com.github.nkzawa.socketio.client.IO;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -56,25 +43,16 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.techhub.chatadminnodejs.Adapter.ListUserMessageAdapter;
 import com.techhub.chatadminnodejs.Adapter.MessageAdapter;
 import com.techhub.chatadminnodejs.ClassUse.CheckinternetToat;
 import com.techhub.chatadminnodejs.OBJ.Message;
-import com.techhub.chatadminnodejs.OBJ.MessageSeen;
-import com.techhub.chatadminnodejs.OBJ.MessageSeenModel;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.lunainc.chatbar.ViewChatBar;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -84,7 +62,7 @@ public class ChatActivity extends AppCompatActivity {
     NavigationView navigationViewchat;
     ListView listViewmenutinnhan;
     DrawerLayout drawerLayoutchat;
-    TextView tvbagecout;
+    TextView tvbagecout,toolbartitle,toolbaronline;
    // EditText edtnoidungtinnhanjv;
    // Button btnguitinnhanjv;
     ViewChatBar chatbar;
@@ -114,8 +92,6 @@ public class ChatActivity extends AppCompatActivity {
     private int itemPos=0;
     private String mLastKey="";
     private String mPrevKey="";
-
-
 
 
     private com.github.nkzawa.socketio.client.Socket mSocket;
@@ -155,6 +131,7 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
+        Actionbar();
         Anhxa();
         ConnectSocketio();
         Actionbar();
@@ -303,7 +280,8 @@ public class ChatActivity extends AppCompatActivity {
 
 //set title
         room_name=getIntent().getExtras().get("from_user_id").toString();
-        toolbarmhchat.setTitle(room_name);
+        toolbartitle.setText(room_name);
+       // toolbarmhchat.setTitle(room_name);
         //lay data trong room
         rootmessen=FirebaseDatabase.getInstance().getReference().child("MessageSeen").child(room_name);
         //curent send mess
@@ -358,16 +336,32 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
+        getOnlinecheck();
 
 
 
 
 
 
+    }
 
+    private void getOnlinecheck() {
+        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("OnlineMess").child(room_name);
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+               // dataSnapshot.child()
 
+                String online=dataSnapshot.child("online").getValue().toString();
+                toolbaronline.setText(online);
+                 //CheckinternetToat.toastcheckinternet(ChatActivity.this,dataSnapshot.child("online").getValue().toString());
+            }
 
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
+            }
+        });
     }
 
     private void updateMoreList() {
@@ -452,10 +446,6 @@ public class ChatActivity extends AppCompatActivity {
                 recyclerViewnhantin.scrollToPosition(mangchat.size()-1);
 
                 swipeRefreshLayout.setRefreshing(false);
-               // Message message=dataSnapshot.getValue(Message.class);
-               // int index =getItemIndex(message);
-              //  CheckinternetToat.toastcheckinternet(ChatActivity.this,mangchat.get(index).getUrl());
-
 
             }
 
@@ -506,69 +496,11 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private void ConnectSocketio() {
        // mSocket.connect();
 
        // mSocket.on("svguiusn",onNew_dsusn);
         //mSocket.on("serverguichat",onNew_guitinchat);
-
-
-
-
-
-
-
-
     }
 
 
@@ -656,7 +588,16 @@ public class ChatActivity extends AppCompatActivity {
 
     private void Actionbar() {
 
+
+        toolbarmhchat=(Toolbar)findViewById(R.id.toolbarmhchat);
+        toolbarmhchat.setTitle("");
         setSupportActionBar(toolbarmhchat);
+        ActionBar actionBar=getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowCustomEnabled(true);
+        LayoutInflater inflater=(LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View action_bar_view=inflater.inflate(R.layout.chat_custombar,null);
+        actionBar.setCustomView(action_bar_view);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbarmhchat.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -676,7 +617,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void Anhxa() {
-        toolbarmhchat=(Toolbar)findViewById(R.id.toolbarmhchat);
+
         recyclerViewnhantin=(RecyclerView) findViewById(R.id.rclmainchat);
         listViewmenutinnhan=(ListView)findViewById(R.id.lvmenutinnhan);
         swipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.refreshlayout);
@@ -685,6 +626,8 @@ public class ChatActivity extends AppCompatActivity {
         tvbagecout=(TextView)findViewById(R.id.tvcartnb) ;
         tvbagecout.setVisibility(View.INVISIBLE);
         btnthemanh=(ImageButton)findViewById(R.id.btnthemanh);
+        toolbartitle=(TextView)findViewById(R.id.tvtoolbartitle);
+        toolbaronline=(TextView)findViewById(R.id.tvtoolbaronline);
 
         recyclerViewnhantin.setHasFixedSize(true);
         recyclerViewnhantin.setLayoutManager(new GridLayoutManager(getApplicationContext(),1));

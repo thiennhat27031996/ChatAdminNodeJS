@@ -21,10 +21,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                 <android.support.v7.widget.Toolbar
-                    app:title="Tin nhắn"
-                    app:titleTextColor="#ffffff"
                     android:background="#2a45ba"
                     android:id="@+id/toolbarmhchat"
+                    app:theme="@style/ThemeOverlay.AppCompat.Dark"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"></android.support.v7.widget.Toolbar>
                     <TextView
