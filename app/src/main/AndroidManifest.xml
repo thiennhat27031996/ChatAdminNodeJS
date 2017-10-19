@@ -18,21 +18,26 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".SplashAcivity">
+        <activity android:name=".SplashAcivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChatActivity">
+        <activity android:name=".ChatActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="com.techhub.chatadminnodejs_NOTIFICATION" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".TrangChuActivity"></activity>
+        <activity android:name=".TrangChuActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".TrangChuOfflineActivity"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

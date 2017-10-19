@@ -59,6 +59,7 @@ public  class  MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Messag
 
             holder.tvten.setText(message.name);
        holder.tvmes.setText(message.lastmessage);
+        holder.tvtime.setText(message.time);
         if(!message.url.equals("null")) {
             holder.imvmes.setVisibility(View.VISIBLE);
             Picasso.with(context).load(message.url).error(R.drawable.error).placeholder(R.drawable.progress_animation).into(holder.imvmes);
@@ -84,7 +85,7 @@ public  class  MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Messag
     }
 
     class MessageViewHolder extends RecyclerView.ViewHolder{
-        TextView tvten,tvmes;
+        TextView tvten,tvmes,tvtime;
         ImageView imvmes;
 
         MessageViewHolder(View itemView){
@@ -93,6 +94,7 @@ public  class  MessageAdapter extends RecyclerView.Adapter<MessageAdapter.Messag
             tvten=(TextView)itemView.findViewById(R.id.idnguoiguitin);
             tvmes=(TextView)itemView.findViewById(R.id.textnguoigui);
             imvmes=(ImageView)itemView.findViewById(R.id.imvtinnhan);
+            tvtime=(TextView)itemView.findViewById(R.id.tvtime);
         }
 
 

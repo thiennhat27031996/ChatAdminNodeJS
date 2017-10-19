@@ -3,6 +3,7 @@ package com.techhub.chatadminnodejs.Adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.media.Image;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -15,11 +16,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.techhub.chatadminnodejs.ChatActivity;
 import com.techhub.chatadminnodejs.OBJ.Message;
-import com.techhub.chatadminnodejs.OBJ.MessageSeen;
+
 import com.techhub.chatadminnodejs.OBJ.MessageSeenModel;
 import com.techhub.chatadminnodejs.R;
 
@@ -57,6 +59,7 @@ public class MessageSeenAdapter extends BaseAdapter {
     }
     public static class Viewloaisphld{
         TextView tvuser,tvlastmessage;
+        ImageView icononline;
 
 
 
@@ -72,6 +75,7 @@ public class MessageSeenAdapter extends BaseAdapter {
             view =inflater.inflate(R.layout.item_lv_menuusermess,null);
             viewloaisphld.tvlastmessage=(TextView)view.findViewById(R.id.tvlassmessage);
             viewloaisphld.tvuser=(TextView) view.findViewById(R.id.tvtenuser);
+            viewloaisphld.icononline=(ImageView)view.findViewById(R.id.icononline) ;
 
 
             view.setTag(viewloaisphld);
@@ -106,6 +110,8 @@ public class MessageSeenAdapter extends BaseAdapter {
 
 
         if(messageseen.seen.equals("true")){
+
+
 
             viewloaisphld.tvuser.setTypeface(viewloaisphld.tvuser.getTypeface(), Typeface.NORMAL);
             viewloaisphld.tvuser.setTextColor(ContextCompat.getColor(context, R.color.messSeen));

@@ -16,7 +16,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_marginTop="5dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="15dp"
         android:src="@drawable/usericom"
         android:layout_marginRight="40dp"/>
 
@@ -48,6 +48,22 @@
             android:layout_height="wrap_content"
             android:text="last message"/>
     </LinearLayout>
+    <RelativeLayout
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="35dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+
+            android:id="@+id/icononline"
+            android:layout_alignParentRight="true"
+
+            android:src="@drawable/onlineicon"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+
+            />
+    </RelativeLayout>
 
 
 </LinearLayout>

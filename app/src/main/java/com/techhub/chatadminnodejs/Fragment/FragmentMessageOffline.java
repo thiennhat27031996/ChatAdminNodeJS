@@ -1,20 +1,14 @@
 package com.techhub.chatadminnodejs.Fragment;
 
-import android.app.Activity;
-import android.app.ActivityOptions;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -28,6 +22,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.techhub.chatadminnodejs.Adapter.MessageSeenAdapter;
+import com.techhub.chatadminnodejs.Adapter.MessageSeenOfflineAdapter;
 import com.techhub.chatadminnodejs.ChatActivity;
 import com.techhub.chatadminnodejs.ClassUse.CheckinternetToat;
 import com.techhub.chatadminnodejs.OBJ.MessageSeenModel;
@@ -37,27 +32,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by thiennhat on 17/10/2017.
+ * Created by thiennhat on 19/10/2017.
  */
 
-public class FragmentMessage extends Fragment {
+public class FragmentMessageOffline extends Fragment {
     private ListView listviewUsermess;
     private static List<MessageSeenModel> resultMessageSeenmodel;
-    private static MessageSeenAdapter messageSeenAdapter;
+    private static MessageSeenOfflineAdapter messageSeenOfflineAdapter;
     private FirebaseDatabase databaseUsermessMain;
     private DatabaseReference databaseUsermessMainreference;
     private DatabaseReference databaseUsermessMainreferenceMessagedelete;
     private LinearLayout lnhavemessage;
     private RelativeLayout lnnomessage;
 
-
-
-
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view=inflater.inflate(R.layout.fragment_message,container,false);
+        View view=inflater.inflate(R.layout.fragment_message_offline,container,false);
 
 
         if(  CheckinternetToat.haveNetworkConnection(getContext())){
@@ -67,22 +59,21 @@ public class FragmentMessage extends Fragment {
             CheckinternetToat.alertchecktb(getContext(), "No have Network Connection", "Try again later");
         }
 
-
         return view;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void Anhxa(View view) {
-        listviewUsermess=(ListView)view.findViewById(R.id.lvuser);
-        lnhavemessage=(LinearLayout)view.findViewById(R.id.lnhavemessage);
-        lnnomessage=(RelativeLayout)view.findViewById(R.id.lnnohavemessage);
+        listviewUsermess=(ListView)view.findViewById(R.id.lvuseroffline);
+        lnhavemessage=(LinearLayout)view.findViewById(R.id.lnhavemessageoffline);
+        lnnomessage=(RelativeLayout)view.findViewById(R.id.lnnohavemessageoffline);
         resultMessageSeenmodel=new ArrayList<>();
-        messageSeenAdapter=new MessageSeenAdapter(resultMessageSeenmodel,getContext());
-        listviewUsermess.setAdapter(messageSeenAdapter);
-        databaseUsermessMain=FirebaseDatabase.getInstance();
+        messageSeenOfflineAdapter=new MessageSeenOfflineAdapter(resultMessageSeenmodel,getContext());
+        listviewUsermess.setAdapter(messageSeenOfflineAdapter);
+
+        databaseUsermessMain= FirebaseDatabase.getInstance();
         databaseUsermessMainreference=databaseUsermessMain.getReference("OnlineMess");
         databaseUsermessMainreferenceMessagedelete=FirebaseDatabase.getInstance().getReference("MessageSeen");
-
 
 
 
@@ -91,21 +82,18 @@ public class FragmentMessage extends Fragment {
         listviewUsermess.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
                 if(  CheckinternetToat.haveNetworkConnection(getContext())){
                     databaseUsermessMainreference.child(resultMessageSeenmodel.get(i).name).child("seen").setValue("true");
-
-                    Intent intent = new Intent(getContext(),ChatActivity.class);
+                    Intent intent = new Intent(getContext(), ChatActivity.class);
                     intent.putExtra("from_user_id",resultMessageSeenmodel.get(i).name);
                     intent.putExtra("user_name", "Admin");
                     intent.putExtra("index",i);
                     // Clickmenu=true;
                     startActivity(intent);
-                    getActivity().overridePendingTransition(R.anim.anim_slide_in_left,R.anim.anim_slide_out_left);
                 }else {
                     CheckinternetToat.alertchecktb(getContext(), "No have Network Connection", "Try again later");
                 }
-
-
 
 
                 //Toast.makeText(getApplicationContext(),,Toast.LENGTH_LONG).show();
@@ -129,7 +117,6 @@ public class FragmentMessage extends Fragment {
                             dialog.dismiss();
                         }
 
-
                     }
                 });
                 builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
@@ -150,17 +137,11 @@ public class FragmentMessage extends Fragment {
         databaseUsermessMainreference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                MessageSeenModel messageSeenModel = dataSnapshot.getValue(MessageSeenModel.class);
 
                 String checkCorrectAnswer = dataSnapshot.child("online").getValue(String.class);
-              //  String checkCorrectAnswer1 = dataSnapshot.child("seen").getValue(String.class);
-                if (checkCorrectAnswer.equals("online")) {
-                    int index1 = getItemIndex(messageSeenModel);
-                    if (index1 <0) {
-                        resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
-                        messageSeenAdapter.notifyDataSetChanged();
-                    }
-
+                if (checkCorrectAnswer.equals("offline")) {
+                    resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
+                    messageSeenOfflineAdapter.notifyDataSetChanged();
                 }
                 if(resultMessageSeenmodel.size()==0){
                     lnnomessage.setVisibility(View.VISIBLE);
@@ -170,8 +151,6 @@ public class FragmentMessage extends Fragment {
                     lnnomessage.setVisibility(View.GONE);
                     lnhavemessage.setVisibility(View.VISIBLE);
                 }
-
-
 
 
 
@@ -182,34 +161,28 @@ public class FragmentMessage extends Fragment {
 
                 MessageSeenModel messageSeenModel = dataSnapshot.getValue(MessageSeenModel.class);
 
+
                 String checkCorrectAnswer = dataSnapshot.child("online").getValue(String.class);
 
-               // String checkCorrectAnswerseen = dataSnapshot.child("seen").getValue(String.class);
-                if (checkCorrectAnswer.equals("offline")) {
+                // String checkCorrectAnswerseen = dataSnapshot.child("seen").getValue(String.class);
+                if (checkCorrectAnswer.equals("online")) {
 
                     if (resultMessageSeenmodel.size() > 0) {
                         int index1 = getItemIndex(messageSeenModel);
                         if (index1 > -1) {
                             resultMessageSeenmodel.remove(index1);
-                            messageSeenAdapter.notifyDataSetChanged();
+                            messageSeenOfflineAdapter.notifyDataSetChanged();
                         }
                     }
                 }
-                if (checkCorrectAnswer.equals("online")) {
+                if (checkCorrectAnswer.equals("offline")) {
                     if (resultMessageSeenmodel.size() > 0) {
                         int index1 = getItemIndex(messageSeenModel);
                         if (index1 > -1) {
                             resultMessageSeenmodel.set(index1, messageSeenModel);
-                            messageSeenAdapter.notifyDataSetChanged();
+                            messageSeenOfflineAdapter.notifyDataSetChanged();
                         }
                     }
-
-
-              /*  if(resultMessageSeenmodel.size()>0) {
-                    int index1 = getItemIndex(messageSeenModel);
-                    resultMessageSeenmodel.set(index1, messageSeenModel);
-                    messageSeenAdapter.notifyDataSetChanged();
-                }*/
 
 
                 }
@@ -221,6 +194,7 @@ public class FragmentMessage extends Fragment {
                     lnnomessage.setVisibility(View.GONE);
                     lnhavemessage.setVisibility(View.VISIBLE);
                 }
+
             }
 
             @Override
@@ -232,7 +206,7 @@ public class FragmentMessage extends Fragment {
                     int index = getItemIndex(messageSeenModel);
                     if(index>-1) {
                         resultMessageSeenmodel.remove(index);
-                        messageSeenAdapter.notifyDataSetChanged();
+                        messageSeenOfflineAdapter.notifyDataSetChanged();
                     }
                 }
                 if(resultMessageSeenmodel.size()==0){
@@ -243,6 +217,7 @@ public class FragmentMessage extends Fragment {
                     lnnomessage.setVisibility(View.GONE);
                     lnhavemessage.setVisibility(View.VISIBLE);
                 }
+
 
             }
 
@@ -256,12 +231,9 @@ public class FragmentMessage extends Fragment {
 
             }
         });
-
-
-
     }
     private static int getItemIndex(MessageSeenModel usermess){
-         int index=-1;
+        int index=-1;
         for(int i=0;i<resultMessageSeenmodel.size();i++) {
             if(resultMessageSeenmodel.get(i).name.equals(usermess.name)){
                 index=i;

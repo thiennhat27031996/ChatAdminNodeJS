@@ -33,9 +33,9 @@
                         android:layout_height="wrap_content">
 
                         <android.support.design.widget.TabLayout
-                            android:id="@+id/tablayoutmenu"
+                            android:id="@+id/tablayoutmenuoffline"
                             android:layout_width="match_parent"
-                            android:layout_height="60dp"
+                            android:layout_height="80dp"
                             android:background="#ffffff"
                             app:tabGravity="fill"
                             app:tabIndicatorColor="#858381"
@@ -49,7 +49,7 @@
 
 
                 <android.support.v4.view.ViewPager
-                    android:id="@+id/viewpagemhc"
+                    android:id="@+id/viewpagemhcoffline"
                     app:layout_behavior="@string/appbar_scrolling_view_behavior"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -68,65 +68,61 @@
                     android:layout_height="match_parent">
                     <TextView
 
-                        android:id="@+id/tvcartnb"
-                        android:padding="4dp"
+                        android:id="@+id/tvcartnboffline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:padding="5dp"
                         android:layout_alignParentRight="true"
                         android:layout_marginRight="10dp"
                         android:layout_marginTop="5dp"
-                        android:textSize="20dp"
                         android:background="@drawable/padingbagecart"
                         android:gravity="center"
+                        android:textSize="25dp"
                         android:text="0"
                         android:textColor="#fffffe" />
                 </RelativeLayout>
             </android.support.design.widget.CoordinatorLayout>
+
+
             <FrameLayout
-
+                android:layout_width="200dp"
+                android:layout_height="200dp"
                 android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
 
-                android:layout_width="150dp"
-                android:layout_height="150dp">
+
+                android:layout_alignParentRight="true">
                 <android.support.design.widget.FloatingActionButton
-                    android:layout_width="70dp"
-                    android:id="@+id/floatingbuttonselect"
+                    android:layout_width="100dp"
+                    android:id="@+id/floatingbuttonselectoffline"
                     android:layout_gravity="center"
                     app:backgroundTint="#3241a0"
 
                     app:elevation="12dp"
-                    android:layout_height="70dp"
+                    android:layout_height="100dp"
                     />
-
-
                 <TextView
-                    android:id="@+id/tvselectonline"
+                    android:id="@+id/tvselectonlineoffline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:elevation="16dp"
-                    android:textSize="17dp"
+                    android:textSize="25dp"
                     android:text="online"
                     android:textColor="#ffffff"/>
                 <TextView
-                    android:id="@+id/tvcartnbfloatbutton"
+                    android:id="@+id/tvcartnbfloatbuttonoffline"
                     android:elevation="16dp"
                     android:layout_gravity="center"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginBottom="22dp"
+                    android:layout_marginLeft="17dp"
+                    android:layout_marginBottom="30dp"
                     android:textColor="#ffffff"
-                    android:padding="4dp"
+                    android:padding="6dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
                     android:background="@drawable/padingbagecart"
-                    android:textSize="15dp"/>
-
-
+                    android:textSize="20dp"/>
             </FrameLayout>
-
-
 
             <Button
                 android:visibility="gone"

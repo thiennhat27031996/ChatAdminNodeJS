@@ -48,6 +48,21 @@
         android:layout_height="wrap_content"
         android:text="last message"/>
     </LinearLayout>
+    <RelativeLayout
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <ImageView
+
+        android:id="@+id/icononline"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/onlineicon"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+
+        />
+    </RelativeLayout>
 
 
 </LinearLayout>

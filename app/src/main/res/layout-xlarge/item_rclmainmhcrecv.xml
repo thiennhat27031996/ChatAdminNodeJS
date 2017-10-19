@@ -38,6 +38,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="noidung"/>
+            <TextView
+                android:id="@+id/tvtime"
+                android:textColor="#363535"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textnguoigui"
+                android:textSize="17dp"
+                android:text="time"/>
             <ImageView
                 android:id="@+id/imvtinnhan"
                 android:scaleType="fitXY"

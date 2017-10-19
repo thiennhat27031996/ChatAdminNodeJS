@@ -82,9 +82,53 @@
                         android:textColor="#fffffe" />
                 </RelativeLayout>
             </android.support.design.widget.CoordinatorLayout>
+            <FrameLayout
+
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+
+                android:layout_width="200dp"
+                android:layout_height="200dp">
+                <android.support.design.widget.FloatingActionButton
+                    android:layout_width="100dp"
+                    android:id="@+id/floatingbuttonselect"
+                    android:layout_gravity="center"
+                    app:backgroundTint="#3241a0"
+
+                    app:elevation="12dp"
+                    android:layout_height="100dp"
+                    />
+
+
+                <TextView
+                    android:id="@+id/tvselectonline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:elevation="16dp"
+                    android:textSize="25dp"
+                    android:text="online"
+                    android:textColor="#ffffff"/>
+                <TextView
+                    android:id="@+id/tvcartnbfloatbutton"
+                    android:elevation="16dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="17dp"
+                    android:layout_marginBottom="30dp"
+                    android:textColor="#ffffff"
+                    android:padding="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:background="@drawable/padingbagecart"
+                    android:textSize="20dp"/>
+
+
+            </FrameLayout>
 
 
             <Button
+                android:visibility="gone"
                 android:id="@+id/btnlogout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

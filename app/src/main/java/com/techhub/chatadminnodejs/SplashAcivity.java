@@ -1,8 +1,10 @@
 package com.techhub.chatadminnodejs;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -39,31 +41,60 @@ public class SplashAcivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_acivity);
-        btnlogin=(CircularProgressButton) findViewById(R.id.btnlogin);
-        edtmail=(EditText)findViewById(R.id.edtemail);
-        edtpass=(EditText)findViewById(R.id.edtpass);
-        mAuth=FirebaseAuth.getInstance();
+        if(  CheckinternetToat.haveNetworkConnection(SplashAcivity.this)){
+            btnlogin=(CircularProgressButton) findViewById(R.id.btnlogin);
+            edtmail=(EditText)findViewById(R.id.edtemail);
+            edtpass=(EditText)findViewById(R.id.edtpass);
+            mAuth=FirebaseAuth.getInstance();
 
-        session= new Usersession(this);
-        userinfo = new Userinfo(this);
-        if(session.isUserLoggedin()){
-            startActivity(new Intent(this,TrangChuActivity.class));
-            finish();
+            session= new Usersession(this);
+            userinfo = new Userinfo(this);
+            if(session.isUserLoggedin()){
+                startActivity(new Intent(this,TrangChuActivity.class));
+                finish();
+            }
+
+
+
+
+
+
+            btnlogin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(  CheckinternetToat.haveNetworkConnection(SplashAcivity.this)){
+
+                    loginClick();
+                    }else {
+                        AlertDialog.Builder builder =new AlertDialog.Builder(SplashAcivity.this);
+
+                        builder.setTitle("Note!");
+                        builder.setMessage("No have Network Connection,Try again later!");
+                        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        });
+                        builder.show();
+                    }
+                }
+            });
+            btnlogin.setIndeterminateProgressMode(true);
+        }else {
+            AlertDialog.Builder builder =new AlertDialog.Builder(SplashAcivity.this);
+
+            builder.setTitle("Note!");
+            builder.setMessage("No have Network Connection,Try again later!");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                }
+            });
+            builder.show();
         }
 
-
-
-
-
-
-        btnlogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                loginClick();
-            }
-        });
-        btnlogin.setIndeterminateProgressMode(true);
 
 
 

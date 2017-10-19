@@ -18,6 +18,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.techhub.chatadminnodejs.Adapter.MessageSeenAdapter;
+import com.techhub.chatadminnodejs.Adapter.MessageSeenOfflineAdapter;
 import com.techhub.chatadminnodejs.ChatActivity;
 import com.techhub.chatadminnodejs.ClassUse.CheckinternetToat;
 import com.techhub.chatadminnodejs.OBJ.MessageSeenModel;
@@ -27,43 +28,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by thiennhat on 17/10/2017.
+ * Created by thiennhat on 19/10/2017.
  */
 
-public class FragmentUnreadMessage extends Fragment {
+public class FragmentUnreadMessageOffline extends Fragment {
+    private ListView listviewUserunreadmess;
+    private List<MessageSeenModel> resultMessageSeenmodel;
+    private MessageSeenOfflineAdapter messageSeenAdapter;
+    private FirebaseDatabase databaseUsermessMain=FirebaseDatabase.getInstance();
+    private DatabaseReference databaseUsermessMainreference=databaseUsermessMain.getReference("OnlineMess");;
     private LinearLayout lnhavemessage;
     private RelativeLayout lnnomessage;
 
-    private ListView listviewUserunreadmess;
-    private List<MessageSeenModel> resultMessageSeenmodel;
-    private MessageSeenAdapter messageSeenAdapter;
-    private FirebaseDatabase databaseUsermessMain=FirebaseDatabase.getInstance();
-    private DatabaseReference databaseUsermessMainreference=databaseUsermessMain.getReference("OnlineMess");;
 
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view=inflater.inflate(R.layout.fragment_unreadmessage,container,false);
-
+        View view=inflater.inflate(R.layout.fragment_unreadmessageoffline,container,false);
         if(  CheckinternetToat.haveNetworkConnection(getContext())){
             Anhxa(view);
             updateList();
         }else {
             CheckinternetToat.alertchecktb(getContext(), "No have Network Connection", "Try again later");
         }
-
         return view;
     }
-
-
-
     private void Anhxa(View view) {
-        listviewUserunreadmess=(ListView)view.findViewById(R.id.lvuserunread);
-        lnhavemessage=(LinearLayout)view.findViewById(R.id.lnhavemessageunread);
-        lnnomessage=(RelativeLayout)view.findViewById(R.id.lnnohavemessageunread);
+        listviewUserunreadmess=(ListView)view.findViewById(R.id.lvuserunreadoffline);
+        lnhavemessage=(LinearLayout)view.findViewById(R.id.lnhavemessageunreadoffline);
+        lnnomessage=(RelativeLayout)view.findViewById(R.id.lnnohavemessageunreadoffline);
         resultMessageSeenmodel=new ArrayList<>();
-        messageSeenAdapter=new MessageSeenAdapter(resultMessageSeenmodel,getContext());
+        messageSeenAdapter=new MessageSeenOfflineAdapter(resultMessageSeenmodel,getContext());
         listviewUserunreadmess.setAdapter(messageSeenAdapter);
 
         //databaseUsermessMain
@@ -104,7 +100,7 @@ public class FragmentUnreadMessage extends Fragment {
                 String checkCorrectAnsweroffline = dataSnapshot.child("online").getValue(String.class);
 
                 String checkCorrectAnswer = dataSnapshot.child("seen").getValue(String.class);
-                if (checkCorrectAnswer.equals("false") && checkCorrectAnsweroffline.equals("online")) {
+                if (checkCorrectAnswer.equals("false") && checkCorrectAnsweroffline.equals("offline")) {
                     //CheckinternetToat.toastcheckinternet(MainActivity.this,snapShot.getKey());
                     resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
                     messageSeenAdapter.notifyDataSetChanged();
@@ -129,44 +125,41 @@ public class FragmentUnreadMessage extends Fragment {
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-
-            MessageSeenModel messageSeenModel=dataSnapshot.getValue(MessageSeenModel.class);
-
-
+                MessageSeenModel messageSeenModel=dataSnapshot.getValue(MessageSeenModel.class);
                 String checkCorrectAnsweroffline = dataSnapshot.child("online").getValue(String.class);
-            String checkCorrectAnswer = dataSnapshot.child("seen").getValue(String.class);
-                if (checkCorrectAnswer.equals("false")&& checkCorrectAnsweroffline.equals("online")) {
-                if(resultMessageSeenmodel.size()>0) {
-                    int index1 = getItemIndex(messageSeenModel);
-                    //   listviewUsermess.smoothScrollToPositionFromTop(0,index1);
+                String checkCorrectAnswer = dataSnapshot.child("seen").getValue(String.class);
+                if (checkCorrectAnswer.equals("false")&& checkCorrectAnsweroffline.equals("offline")) {
+                    if(resultMessageSeenmodel.size()>0) {
+                        int index1 = getItemIndex(messageSeenModel);
+                        //   listviewUsermess.smoothScrollToPositionFromTop(0,index1);
 
-                    if(index1>-1) {
-                        resultMessageSeenmodel.set(index1, messageSeenModel);
-                        messageSeenAdapter.notifyDataSetChanged();
+                        if(index1>-1) {
+                            resultMessageSeenmodel.set(index1, messageSeenModel);
+                            messageSeenAdapter.notifyDataSetChanged();
+                        }
+                        else{
+                            resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
+                            messageSeenAdapter.notifyDataSetChanged();
+                        }
+                        //  listviewUsermess.setSelection(index1);
                     }
-                    else{
+                    if(resultMessageSeenmodel.size()==0){
                         resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
                         messageSeenAdapter.notifyDataSetChanged();
                     }
-                    //  listviewUsermess.setSelection(index1);
                 }
-                if(resultMessageSeenmodel.size()==0){
-                    resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
-                    messageSeenAdapter.notifyDataSetChanged();
-                }
-            }
                 else{
-                if(resultMessageSeenmodel.size()>0) {
+                    if(resultMessageSeenmodel.size()>0) {
 
-                    int index = getItemIndex(messageSeenModel);
-                    if(index>-1) {
-                        resultMessageSeenmodel.remove(index);
-                        messageSeenAdapter.notifyDataSetChanged();
+                        int index = getItemIndex(messageSeenModel);
+                        if(index>-1) {
+                            resultMessageSeenmodel.remove(index);
+                            messageSeenAdapter.notifyDataSetChanged();
+                        }
                     }
+
+
                 }
-
-
-            }
                 if(resultMessageSeenmodel.size()==0){
                     lnnomessage.setVisibility(View.VISIBLE);
                     lnhavemessage.setVisibility(View.GONE);
@@ -175,8 +168,6 @@ public class FragmentUnreadMessage extends Fragment {
                     lnnomessage.setVisibility(View.GONE);
                     lnhavemessage.setVisibility(View.VISIBLE);
                 }
-
-
 
             }
 
@@ -201,7 +192,6 @@ public class FragmentUnreadMessage extends Fragment {
                     lnnomessage.setVisibility(View.GONE);
                     lnhavemessage.setVisibility(View.VISIBLE);
                 }
-
 
             }
 

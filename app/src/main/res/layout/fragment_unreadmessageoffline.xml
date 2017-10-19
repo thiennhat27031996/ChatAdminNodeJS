@@ -7,7 +7,7 @@
 
 
     <LinearLayout
-        android:id="@+id/lnhavemessageunread"
+        android:id="@+id/lnhavemessageunreadoffline"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -16,11 +16,11 @@
 
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/lvuserunread"></ListView>
+            android:id="@+id/lvuserunreadoffline"></ListView>
     </LinearLayout>
     <RelativeLayout
         android:gravity="center"
-        android:id="@+id/lnnohavemessageunread"
+        android:id="@+id/lnnohavemessageunreadoffline"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <com.daasuu.bl.BubbleLayout
@@ -28,19 +28,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:padding="15dp"
+            android:padding="10dp"
             app:bl_arrowDirection="bottom"
-            app:bl_arrowHeight="12dp"
-            app:bl_arrowPosition="12dp"
-            app:bl_arrowWidth="15dp"
+            app:bl_arrowHeight="10dp"
+            app:bl_arrowPosition="10dp"
+            app:bl_arrowWidth="10dp"
             app:bl_bubbleColor="#2a45ba"
-            app:bl_cornersRadius="30dp">
+            app:bl_cornersRadius="25dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Empty"
                 android:layout_gravity="center"
-                android:textSize="30dp"
+                android:textSize="20dp"
                 android:textColor="#ffffff"/>
 
         </com.daasuu.bl.BubbleLayout>

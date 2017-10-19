@@ -1,23 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <ScrollView
+
+
+    <LinearLayout
+        android:id="@+id/lnhavemessageunread"
         android:layout_width="match_parent"
-        android:fillViewport="true"
         android:layout_height="match_parent">
 
-        <LinearLayout
+
+        <ListView   android:scrollbars="none"
+
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:id="@+id/lvuserunread"></ListView>
+    </LinearLayout>
+    <RelativeLayout
+        android:gravity="center"
+        android:id="@+id/lnnohavemessageunread"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <com.daasuu.bl.BubbleLayout
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:padding="20dp"
+            app:bl_arrowDirection="bottom"
+            app:bl_arrowHeight="15dp"
+            app:bl_arrowPosition="25dp"
+            app:bl_arrowWidth="20dp"
+            app:bl_bubbleColor="#2a45ba"
+            app:bl_cornersRadius="50dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Empty"
+                android:layout_gravity="center"
+                android:textSize="50dp"
+                android:textColor="#ffffff"/>
+
+        </com.daasuu.bl.BubbleLayout>
+
+    </RelativeLayout>
 
 
-            <ListView   android:scrollbars="none"
-
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/lvuserunread"></ListView>
-        </LinearLayout>
-    </ScrollView>
-
-</LinearLayout>
+</RelativeLayout>

@@ -1,26 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants"
 
 
-    <LinearLayout
-        android:id="@+id/lnhavemessageunread"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+
+    >
 
 
-        <ListView   android:scrollbars="none"
-
+        <LinearLayout
+            android:id="@+id/lnhavemessageoffline"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/lvuserunread"></ListView>
-    </LinearLayout>
+            android:layout_height="match_parent">
+
+
+
+            <ListView   android:scrollbars="none"
+
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/lvuseroffline"></ListView>
+        </LinearLayout>
     <RelativeLayout
         android:gravity="center"
-        android:id="@+id/lnnohavemessageunread"
+        android:id="@+id/lnnohavemessageoffline"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <com.daasuu.bl.BubbleLayout
@@ -28,24 +35,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:padding="15dp"
+            android:padding="10dp"
             app:bl_arrowDirection="bottom"
-            app:bl_arrowHeight="12dp"
-            app:bl_arrowPosition="12dp"
-            app:bl_arrowWidth="15dp"
+            app:bl_arrowHeight="10dp"
+            app:bl_arrowPosition="10dp"
+            app:bl_arrowWidth="10dp"
             app:bl_bubbleColor="#2a45ba"
-            app:bl_cornersRadius="30dp">
+            app:bl_cornersRadius="25dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Empty"
                 android:layout_gravity="center"
-                android:textSize="30dp"
+                android:textSize="20dp"
                 android:textColor="#ffffff"/>
 
         </com.daasuu.bl.BubbleLayout>
 
     </RelativeLayout>
+
+
+
+
 
 
 </RelativeLayout>

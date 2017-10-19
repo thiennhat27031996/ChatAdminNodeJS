@@ -21,11 +21,13 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.TimeFormatException;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -51,8 +53,14 @@ import org.lunainc.chatbar.ViewChatBar;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -63,6 +71,7 @@ public class ChatActivity extends AppCompatActivity {
     ListView listViewmenutinnhan;
     DrawerLayout drawerLayoutchat;
     TextView tvbagecout,toolbartitle,toolbaronline;
+    ImageView icononlinechat;
    // EditText edtnoidungtinnhanjv;
    // Button btnguitinnhanjv;
     ViewChatBar chatbar;
@@ -92,6 +101,7 @@ public class ChatActivity extends AppCompatActivity {
     private int itemPos=0;
     private String mLastKey="";
     private String mPrevKey="";
+    private boolean clickxoa=false;
 
 
     private com.github.nkzawa.socketio.client.Socket mSocket;
@@ -133,11 +143,16 @@ public class ChatActivity extends AppCompatActivity {
 
         Actionbar();
         Anhxa();
-        ConnectSocketio();
-        Actionbar();
-        Firebase2();
-        SendImagefirebase();
-        Getcoutunreadmess();
+        if(  CheckinternetToat.haveNetworkConnection(ChatActivity.this)){
+            ConnectSocketio();
+            Actionbar();
+            Firebase2();
+            SendImagefirebase();
+            Getcoutunreadmess();
+        }else {
+            CheckinternetToat.alertchecktb(ChatActivity.this, "No have Network Connection", "Try again later");
+        }
+
 
 
     }
@@ -186,6 +201,13 @@ public class ChatActivity extends AppCompatActivity {
                             progressDialog.dismiss();
                             String url=taskSnapshot.getDownloadUrl().toString();
 
+                            Date d=new Date();
+                            SimpleDateFormat sdf=new SimpleDateFormat("HH:mm:ss");
+                            String time=sdf.format(d);
+
+
+
+
                             Map<String,Object> map3=new HashMap<String,Object>();
                             temp_keyroot2=rootmessen.push().getKey();
                             rootmessen.updateChildren(map3);
@@ -197,6 +219,7 @@ public class ChatActivity extends AppCompatActivity {
                             map4.put("key",temp_keyroot2);
                             map4.put("usermess","false");
                             map4.put("url",url);
+                            map4.put("time",time);
                             Map<String,Object> map5=new HashMap<String,Object>();
                             map5.put("lastmessage","[Image]");
                             map5.put("name",room_name);
@@ -209,6 +232,7 @@ public class ChatActivity extends AppCompatActivity {
                     }) .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
+                            CheckinternetToat.toastcheckinternet(ChatActivity.this,"Problem!,try again later");
                             progressDialog.dismiss();
 
                         }
@@ -286,30 +310,40 @@ public class ChatActivity extends AppCompatActivity {
         rootmessen=FirebaseDatabase.getInstance().getReference().child("MessageSeen").child(room_name);
         //curent send mess
         final DatabaseReference db=FirebaseDatabase.getInstance().getReference().child("OnlineMess").child(room_name);
+
         chatbar.setSendClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //rootsenn
-                Map<String,Object> map3=new HashMap<String,Object>();
-                temp_keyroot2=rootmessen.push().getKey();
-                rootmessen.updateChildren(map3);
-                DatabaseReference message_rootseen=rootmessen.child(temp_keyroot2);
-                Map<String,Object> map4=new HashMap<String,Object>();
-                map4.put("lastmessage",chatbar.getMessageText());
-                map4.put("name","Admin");
-                map4.put("seen","true");
-                map4.put("key",temp_keyroot2);
-                map4.put("usermess","false");
-                map4.put("url","null");
-                Map<String,Object> map5=new HashMap<String,Object>();
-                map5.put("lastmessage",chatbar.getMessageText());
-                map5.put("name",room_name);
-                map5.put("seen","true");
-                map5.put("key",temp_keyroot2);
-                db.updateChildren(map5);
-                message_rootseen.updateChildren(map4);
+                if(  CheckinternetToat.haveNetworkConnection(ChatActivity.this)){
+                    Date d=new Date();
+                    SimpleDateFormat sdf=new SimpleDateFormat("HH:mm:ss");
+                    String time=sdf.format(d);
+                    //rootsenn
+                    Map<String,Object> map3=new HashMap<String,Object>();
+                    temp_keyroot2=rootmessen.push().getKey();
+                    rootmessen.updateChildren(map3);
+                    DatabaseReference message_rootseen=rootmessen.child(temp_keyroot2);
+                    Map<String,Object> map4=new HashMap<String,Object>();
+                    map4.put("lastmessage",chatbar.getMessageText());
+                    map4.put("name","Admin");
+                    map4.put("seen","true");
+                    map4.put("key",temp_keyroot2);
+                    map4.put("usermess","false");
+                    map4.put("url","null");
+                    map4.put("time",time);
+                    Map<String,Object> map5=new HashMap<String,Object>();
+                    map5.put("lastmessage",chatbar.getMessageText());
+                    map5.put("name",room_name);
+                    map5.put("seen","true");
+                    map5.put("key",temp_keyroot2);
+                    db.updateChildren(map5);
+                    message_rootseen.updateChildren(map4);
 
-                chatbar.setClearMessage(true);
+                    chatbar.setClearMessage(true);
+                }else {
+                    CheckinternetToat.alertchecktb(ChatActivity.this, "No have Network Connection", "Try again later");
+                }
+
             }
         });
 
@@ -325,9 +359,15 @@ public class ChatActivity extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mCurrentpage++;
-                itemPos=0;
-                updateMoreList();
+
+                if(  CheckinternetToat.haveNetworkConnection(ChatActivity.this)){
+                    mCurrentpage++;
+                    itemPos=0;
+                    updateMoreList();
+                }else {
+                    CheckinternetToat.alertchecktb(ChatActivity.this, "No have Network Connection", "Try again later");
+                }
+
             }
         });
 
@@ -351,9 +391,15 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                // dataSnapshot.child()
-
-                String online=dataSnapshot.child("online").getValue().toString();
-                toolbaronline.setText(online);
+                if(dataSnapshot.exists()) {
+                    String online = dataSnapshot.child("online").getValue().toString();
+                    toolbaronline.setText(online);
+                    if(online.equals("online")){
+                        icononlinechat.setVisibility(View.VISIBLE);
+                    }else{
+                       icononlinechat.setVisibility(View.GONE);
+                    }
+                }
                  //CheckinternetToat.toastcheckinternet(ChatActivity.this,dataSnapshot.child("online").getValue().toString());
             }
 
@@ -515,72 +561,85 @@ public class ChatActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.menuxoa:
-                AlertDialog.Builder builder=new AlertDialog.Builder(ChatActivity.this);
-                builder.setTitle("Confirm");
-                builder.setMessage("Are you sure you want to delete the selected item?");
+                if(  CheckinternetToat.haveNetworkConnection(ChatActivity.this)){
+                    delete=false;
+                    AlertDialog.Builder builder=new AlertDialog.Builder(ChatActivity.this);
+                    builder.setTitle("Confirm");
+                    builder.setMessage("Are you sure you want to delete the selected item?");
 
-                builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, int which) {
-                        final ProgressDialog progressDialog= new ProgressDialog(ChatActivity.this);
-                        progressDialog.setTitle("Delete...");
-                        progressDialog.show();
+                    builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialog, int which) {
+                            if(  CheckinternetToat.haveNetworkConnection(ChatActivity.this)){
+                                final ProgressDialog progressDialog= new ProgressDialog(ChatActivity.this);
+                                progressDialog.setTitle("Delete...");
+                                progressDialog.show();
 
-                        databaseUsermessMainreferenceMessagedelete.child(room_name).addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                for(DataSnapshot child :dataSnapshot.getChildren()){
-                                    String url=child.child("url").getValue().toString();
+                                databaseUsermessMainreferenceMessagedelete.child(room_name).addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        for(DataSnapshot child :dataSnapshot.getChildren()){
+                                            String url=child.child("url").getValue().toString();
 
 
-                                   if(!url.equals("null")){
 
-                                        StorageReference ref=FirebaseStorage.getInstance().getReferenceFromUrl(url);
+                                            if(!url.equals("null")){
 
-                                       ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
+                                                StorageReference ref=FirebaseStorage.getInstance().getReferenceFromUrl(url);
 
+                                                ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+
+                                                    }
+                                                });
+                                                //delete=delete+1;
                                             }
-                                        });
-                                        //delete=delete+1;
+                                        }
                                     }
-                                }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+
+                                final Handler handler = new Handler();
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        //Do something after 100ms
+
+                                        delete=true;
+                                        progressDialog.dismiss();
+                                        databaseUsermessMainreference.child(room_name).removeValue();
+                                        databaseUsermessMainreferenceMessagedelete.child(room_name).removeValue();
+
+                                        finish();
+
+                                    }
+                                }, 3000);
+                                dialog.dismiss();
+                            }else {
+                                CheckinternetToat.alertchecktb(ChatActivity.this, "No have Network Connection", "Try again later");
                             }
 
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
 
-                            }
-                        });
+                        }
+                    });
+                    builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-                        final Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                //Do something after 100ms
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog alert=builder.create();
+                    alert.show();
+                }else {
+                    CheckinternetToat.alertchecktb(ChatActivity.this, "No have Network Connection", "Try again later");
+                }
 
-                                progressDialog.dismiss();
-                                databaseUsermessMainreference.child(room_name).removeValue();
-                                databaseUsermessMainreferenceMessagedelete.child(room_name).removeValue();
-                                delete=true;
-                               finish();
-
-                            }
-                        }, 3000);
-                        dialog.dismiss();
-
-                    }
-                });
-                builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        dialog.dismiss();
-                    }
-                });
-                AlertDialog alert=builder.create();
-                alert.show();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -602,7 +661,14 @@ public class ChatActivity extends AppCompatActivity {
         toolbarmhchat.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(  CheckinternetToat.haveNetworkConnection(ChatActivity.this)){
+                    startActivity(new Intent(ChatActivity.this,TrangChuActivity.class));
                     finish();
+                    overridePendingTransition(R.anim.anim_slide_in_right,R.anim.anim_slide_out_right);
+                }else {
+                    CheckinternetToat.alertchecktb(ChatActivity.this, "No have Network Connection", "Try again later");
+                }
+
 
 
 
@@ -628,7 +694,9 @@ public class ChatActivity extends AppCompatActivity {
         btnthemanh=(ImageButton)findViewById(R.id.btnthemanh);
         toolbartitle=(TextView)findViewById(R.id.tvtoolbartitle);
         toolbaronline=(TextView)findViewById(R.id.tvtoolbaronline);
-
+        icononlinechat=(ImageView) findViewById(R.id.icononlinechat);
+        icononlinechat.setImageResource(R.drawable.onlineicon);
+        icononlinechat.setVisibility(View.GONE);
         recyclerViewnhantin.setHasFixedSize(true);
         recyclerViewnhantin.setLayoutManager(new GridLayoutManager(getApplicationContext(),1));
         chatbar=(ViewChatBar) findViewById(R.id.chatbar);

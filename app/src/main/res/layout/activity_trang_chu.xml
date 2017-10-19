@@ -83,12 +83,61 @@ android:layout_height="match_parent">
     </android.support.design.widget.CoordinatorLayout>
 
 
+
+    <FrameLayout
+
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+
+        android:layout_width="100dp"
+        android:layout_height="100dp">
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:id="@+id/floatingbuttonselect"
+        android:layout_gravity="center"
+        app:backgroundTint="#3241a0"
+
+        app:elevation="12dp"
+        android:layout_height="wrap_content"
+       />
+
+
+        <TextView
+            android:id="@+id/tvselectonline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:elevation="16dp"
+            android:textSize="11dp"
+            android:text="online"
+            android:textColor="#ffffff"/>
+        <TextView
+            android:id="@+id/tvcartnbfloatbutton"
+            android:elevation="16dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="15dp"
+            android:textColor="#ffffff"
+            android:padding="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:background="@drawable/padingbagecart"
+            android:textSize="10dp"/>
+
+
+    </FrameLayout>
+
+
+
     <Button
+        android:visibility="gone"
         android:id="@+id/btnlogout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="logout"
         android:layout_alignParentBottom="true"/>
+
 
 </RelativeLayout>
 
