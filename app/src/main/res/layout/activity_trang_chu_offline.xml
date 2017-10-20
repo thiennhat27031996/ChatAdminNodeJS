@@ -31,8 +31,41 @@
 
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
+                        <android.support.v7.widget.Toolbar
+                            app:theme="@style/ThemeOverlay.AppCompat.Dark"
+                            android:id="@+id/toolbartrangchuoffline"
+                            android:layout_width="match_parent"
+                            android:layout_height="?attr/actionBarSize"></android.support.v7.widget.Toolbar>
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <com.daasuu.bl.BubbleLayout
+                                android:id="@+id/paddingtvcounttrangchuoffline"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+
+                                android:visibility="gone"
+                                android:layout_marginLeft="25dp"
+                                android:layout_marginTop="10dp"
+                                app:bl_arrowDirection="left"
+                                app:bl_arrowHeight="5dp"
+                                app:bl_arrowPosition="13dp"
+                                app:bl_arrowWidth="10dp"
+                                app:bl_bubbleColor="#d61811"
+                                app:bl_cornersRadius="10dp">
+                                <TextView
+                                    android:textSize="10sp"
+                                    android:id="@+id/tvcoutitemtrangchumenuoffline"
+                                    android:text="0"
+                                    android:padding="5dp"
+                                    android:textColor="#ffffff"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content" />
+                            </com.daasuu.bl.BubbleLayout>
+                        </RelativeLayout>
 
                         <android.support.design.widget.TabLayout
+                            android:layout_below="@+id/toolbartrangchuoffline"
                             android:id="@+id/tablayoutmenuoffline"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -43,7 +76,30 @@
                             app:tabMode="fixed"
                             app:tabSelectedTextColor="#646362"
                             app:tabTextAppearance="@style/TabLayoutStyle"
-                            app:tabTextColor="#969390"></android.support.design.widget.TabLayout>
+                            app:tabTextColor="#969390">
+
+                        </android.support.design.widget.TabLayout>
+
+                        <RelativeLayout
+                            android:layout_below="@+id/toolbartrangchuoffline"
+
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+                            <TextView
+
+                                android:id="@+id/tvcartnboffline"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:padding="4dp"
+                                android:layout_alignParentRight="true"
+                                android:layout_marginRight="10dp"
+                                android:layout_marginTop="5dp"
+                                android:background="@drawable/padingbagecart"
+                                android:gravity="center"
+                                android:text="0"
+                                android:textColor="#fffffe" />
+                        </RelativeLayout>
+
                     </RelativeLayout>
                 </android.support.design.widget.AppBarLayout>
 
@@ -53,83 +109,19 @@
                     app:layout_behavior="@string/appbar_scrolling_view_behavior"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginBottom="?attr/actionBarSize"
                     >
                 </android.support.v4.view.ViewPager>
 
 
             </android.support.design.widget.CoordinatorLayout>
 
-            <android.support.design.widget.CoordinatorLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <RelativeLayout
-
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-                    <TextView
-
-                        android:id="@+id/tvcartnboffline"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="4dp"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="10dp"
-                        android:layout_marginTop="5dp"
-                        android:background="@drawable/padingbagecart"
-                        android:gravity="center"
-                        android:text="0"
-                        android:textColor="#fffffe" />
-                </RelativeLayout>
-            </android.support.design.widget.CoordinatorLayout>
 
 
-            <FrameLayout
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_alignParentBottom="true"
 
 
-                android:layout_alignParentRight="true">
-                <android.support.design.widget.FloatingActionButton
-                    android:layout_width="wrap_content"
-                    android:id="@+id/floatingbuttonselectoffline"
-                    android:layout_gravity="center"
-                    app:backgroundTint="#3241a0"
 
-                    app:elevation="12dp"
-                    android:layout_height="wrap_content"
-                    />
-                <TextView
-                    android:id="@+id/tvselectonlineoffline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:elevation="16dp"
-                    android:textSize="11dp"
-                    android:text="online"
-                    android:textColor="#ffffff"/>
-                <TextView
-                    android:id="@+id/tvcartnbfloatbuttonoffline"
-                    android:elevation="16dp"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginBottom="15dp"
-                    android:textColor="#ffffff"
-                    android:padding="2dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:background="@drawable/padingbagecart"
-                    android:textSize="10dp"/>
-            </FrameLayout>
 
-            <Button
-                android:visibility="gone"
-                android:id="@+id/btnlogout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="logout"
-                android:layout_alignParentBottom="true"/>
 
         </RelativeLayout>
 

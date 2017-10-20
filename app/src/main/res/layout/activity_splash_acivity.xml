@@ -53,11 +53,9 @@
         app:cpb_textIdle="Login"
         app:layout_widthPercent="82%"
         app:layout_marginLeftPercent="9%"
-        android:layout_below="@+id/imageView2"
+        android:layout_below="@+id/uidimage"
         app:layout_heightPercent="8%"
-        app:layout_marginTopPercent="5%"
-
-
+        app:layout_marginTopPercent="10%"
 
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -94,6 +92,32 @@
 
         android:hint="Email"
         android:inputType="textEmailAddress"
+
+        />
+
+
+    <ImageView
+        android:layout_below="@+id/imageView2"
+        android:id="@+id/uidimage"
+        app:layout_marginTopPercent="3%"
+        app:layout_marginLeftPercent="10%"
+        app:layout_widthPercent="10%"
+        app:layout_heightPercent="10%"
+
+
+        android:src="@drawable/iconpass"
+        />
+
+    <EditText
+        android:layout_below="@+id/imageView2"
+        android:id="@+id/edtuid"
+        app:layout_widthPercent="70%"
+        app:layout_marginTopPercent="3%"
+        android:layout_toRightOf="@+id/uidimage"
+        app:layout_heightPercent="10%"
+
+        android:hint="UID"
+        android:inputType="text"
 
         />
 

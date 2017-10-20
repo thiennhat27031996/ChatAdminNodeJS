@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import com.techhub.chatadminnodejs.Fragment.FragmentMessage;
+import com.techhub.chatadminnodejs.Fragment.FragmentMessageOffline;
 import com.techhub.chatadminnodejs.Fragment.FragmentUnreadMessage;
 
 /**
@@ -13,7 +14,7 @@ import com.techhub.chatadminnodejs.Fragment.FragmentUnreadMessage;
  */
 
 public class FragmentAdapter extends FragmentPagerAdapter {
-    private String[] tabitem=new String[]{"Message","Unread Message"};
+    private String[] tabitem=new String[]{"Online User","Unread Online User"};
     Context context;
     private int pagecount=2;
     public FragmentAdapter(FragmentManager fm, Context context) {

@@ -31,7 +31,7 @@ public class SplashAcivity extends AppCompatActivity {
     private DatabaseReference mUserDatabase;
     private FirebaseAuth mAuth;
     CircularProgressButton btnlogin;
-    EditText edtmail,edtpass;
+    EditText edtmail,edtpass,edtuid;
     private    static final String TAG =SplashAcivity.class.getSimpleName();
     private Usersession session;
     private Userinfo userinfo;
@@ -45,6 +45,7 @@ public class SplashAcivity extends AppCompatActivity {
             btnlogin=(CircularProgressButton) findViewById(R.id.btnlogin);
             edtmail=(EditText)findViewById(R.id.edtemail);
             edtpass=(EditText)findViewById(R.id.edtpass);
+            edtuid=(EditText)findViewById(R.id.edtuid);
             mAuth=FirebaseAuth.getInstance();
 
             session= new Usersession(this);
@@ -113,11 +114,15 @@ public class SplashAcivity extends AppCompatActivity {
 
     private void loginClick() {
         btnlogin.setProgress(0);
-        if (TextUtils.isEmpty(edtmail.getText().toString()) || TextUtils.isEmpty(edtpass.getText().toString())) {
+        if (TextUtils.isEmpty(edtmail.getText().toString())|| TextUtils.isEmpty(edtuid.getText().toString()) || TextUtils.isEmpty(edtpass.getText().toString())) {
             if (TextUtils.isEmpty(edtmail.getText().toString())) {
-                edtmail.setError("Không để trống");
-            } else {
-                edtpass.setError("Không để trống");
+                edtmail.setError("please input!");
+            }
+            if (TextUtils.isEmpty(edtuid.getText().toString())){
+                edtuid.setError("please input!");
+            }
+            if(TextUtils.isEmpty(edtpass.getText().toString())) {
+                edtpass.setError("please input!");
             }
             btnlogin.setProgress(-1);
             return;
@@ -125,6 +130,7 @@ public class SplashAcivity extends AppCompatActivity {
             inProgress=true;
             edtmail.setEnabled(false);
             edtpass.setEnabled(false);
+            edtuid.setEnabled(false);
             if(btnlogin.getProgress()==0)
             {
                 btnlogin.setProgress(5);
@@ -170,6 +176,7 @@ public class SplashAcivity extends AppCompatActivity {
                             btnlogin.setProgress(-1);
                             edtmail.setEnabled(true);
                             edtpass.setEnabled(true);
+                            edtuid.setEnabled(true);
                             inProgress=false;
 
 
@@ -177,19 +184,30 @@ public class SplashAcivity extends AppCompatActivity {
                         else {
                             edtmail.setEnabled(true);
                             edtpass.setEnabled(true);
+                            edtuid.setEnabled(true);
                             inProgress=false;
                             String deviceToken= FirebaseInstanceId.getInstance().getToken();
                             FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
-                           mUserDatabase= FirebaseDatabase.getInstance().getReference().child("DeviceAndroid");
+                           mUserDatabase= FirebaseDatabase.getInstance().getReference().child(currentFirebaseUser.getUid()).child("DeviceAndroid");
                             mUserDatabase.child( currentFirebaseUser.getUid()).child("device_token").setValue(deviceToken);
                             mUserDatabase.child( currentFirebaseUser.getUid()).child("user_id").setValue( currentFirebaseUser.getUid());
+
                             //CheckinternetToat.toastcheckinternet(SplashAcivity.this,currentFirebaseUser.getUid());
-                           session.setLoggedin(true);
-                            userinfo.setUserid( currentFirebaseUser.getUid());
-                            userinfo.setUsertoken(deviceToken);
-                            Intent intent = new Intent(SplashAcivity.this, TrangChuActivity.class);
-                            startActivity(intent);
-                            finish();
+
+                            if(edtuid.getText().toString().equals(currentFirebaseUser.getUid())){
+                                session.setLoggedin(true);
+                                userinfo.setUserid( currentFirebaseUser.getUid());
+                                userinfo.setUsertoken(deviceToken);
+                                Intent intent = new Intent(SplashAcivity.this, TrangChuActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }else{
+                                btnlogin.setProgress(-1);
+                                edtuid.setError("wrong UID!");
+                                edtuid.setText("");
+
+                            }
+
                         }
 
                         // If sign in fails, display a message to the user. If sign in succeeds

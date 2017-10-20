@@ -31,6 +31,7 @@ import com.techhub.chatadminnodejs.Adapter.MessageSeenAdapter;
 import com.techhub.chatadminnodejs.ChatActivity;
 import com.techhub.chatadminnodejs.ClassUse.CheckinternetToat;
 import com.techhub.chatadminnodejs.OBJ.MessageSeenModel;
+import com.techhub.chatadminnodejs.Pref.Userinfo;
 import com.techhub.chatadminnodejs.R;
 
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ import java.util.List;
 
 public class FragmentMessage extends Fragment {
     private ListView listviewUsermess;
+    private Userinfo userinfo;
     private static List<MessageSeenModel> resultMessageSeenmodel;
     private static MessageSeenAdapter messageSeenAdapter;
     private FirebaseDatabase databaseUsermessMain;
@@ -73,6 +75,7 @@ public class FragmentMessage extends Fragment {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void Anhxa(View view) {
+        userinfo=new Userinfo(getContext());
         listviewUsermess=(ListView)view.findViewById(R.id.lvuser);
         lnhavemessage=(LinearLayout)view.findViewById(R.id.lnhavemessage);
         lnnomessage=(RelativeLayout)view.findViewById(R.id.lnnohavemessage);
@@ -80,8 +83,8 @@ public class FragmentMessage extends Fragment {
         messageSeenAdapter=new MessageSeenAdapter(resultMessageSeenmodel,getContext());
         listviewUsermess.setAdapter(messageSeenAdapter);
         databaseUsermessMain=FirebaseDatabase.getInstance();
-        databaseUsermessMainreference=databaseUsermessMain.getReference("OnlineMess");
-        databaseUsermessMainreferenceMessagedelete=FirebaseDatabase.getInstance().getReference("MessageSeen");
+        databaseUsermessMainreference=databaseUsermessMain.getReference(userinfo.getKeyUserid()).child("OnlineMess");
+        databaseUsermessMainreferenceMessagedelete=FirebaseDatabase.getInstance().getReference(userinfo.getKeyUserid()).child("MessageSeen");
 
 
 
@@ -150,25 +153,26 @@ public class FragmentMessage extends Fragment {
         databaseUsermessMainreference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                MessageSeenModel messageSeenModel = dataSnapshot.getValue(MessageSeenModel.class);
+                if(dataSnapshot.exists()) {
+                    MessageSeenModel messageSeenModel = dataSnapshot.getValue(MessageSeenModel.class);
 
-                String checkCorrectAnswer = dataSnapshot.child("online").getValue(String.class);
-              //  String checkCorrectAnswer1 = dataSnapshot.child("seen").getValue(String.class);
-                if (checkCorrectAnswer.equals("online")) {
-                    int index1 = getItemIndex(messageSeenModel);
-                    if (index1 <0) {
-                        resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
-                        messageSeenAdapter.notifyDataSetChanged();
+                    String checkCorrectAnswer = dataSnapshot.child("online").getValue(String.class);
+                    //  String checkCorrectAnswer1 = dataSnapshot.child("seen").getValue(String.class);
+                    if (checkCorrectAnswer.equals("online") && checkCorrectAnswer !=null) {
+                        int index1 = getItemIndex(messageSeenModel);
+                        if (index1 < 0) {
+                            resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
+                            messageSeenAdapter.notifyDataSetChanged();
+                        }
+
                     }
-
-                }
-                if(resultMessageSeenmodel.size()==0){
-                    lnnomessage.setVisibility(View.VISIBLE);
-                    lnhavemessage.setVisibility(View.GONE);
-                }
-                else{
-                    lnnomessage.setVisibility(View.GONE);
-                    lnhavemessage.setVisibility(View.VISIBLE);
+                    if (resultMessageSeenmodel.size() == 0) {
+                        lnnomessage.setVisibility(View.VISIBLE);
+                        lnhavemessage.setVisibility(View.GONE);
+                    } else {
+                        lnnomessage.setVisibility(View.GONE);
+                        lnhavemessage.setVisibility(View.VISIBLE);
+                    }
                 }
 
 

@@ -27,7 +27,7 @@ public class Userinfo {
         editor.apply();
     }
     public void setUsertoken(String usertoken){
-        editor.putString(KEY_USERID,usertoken);
+        editor.putString(KEY_USERTOKEN,usertoken);
         editor.apply();
     }
 

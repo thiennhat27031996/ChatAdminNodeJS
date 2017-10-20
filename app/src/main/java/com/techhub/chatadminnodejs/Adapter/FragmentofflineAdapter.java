@@ -15,7 +15,7 @@ import com.techhub.chatadminnodejs.Fragment.FragmentUnreadMessageOffline;
  */
 
 public class FragmentofflineAdapter extends FragmentPagerAdapter {
-    private String[] tabitem=new String[]{"Message","Unread Message"};
+    private String[] tabitem=new String[]{"Offline User","Unread Offline User"};
     Context context;
     private int pagecount=2;
     public FragmentofflineAdapter(FragmentManager fm, Context context) {

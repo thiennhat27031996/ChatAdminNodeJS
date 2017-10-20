@@ -48,6 +48,8 @@ import com.google.firebase.storage.UploadTask;
 import com.techhub.chatadminnodejs.Adapter.MessageAdapter;
 import com.techhub.chatadminnodejs.ClassUse.CheckinternetToat;
 import com.techhub.chatadminnodejs.OBJ.Message;
+import com.techhub.chatadminnodejs.Pref.Userinfo;
+import com.techhub.chatadminnodejs.Pref.Usersession;
 
 import org.lunainc.chatbar.ViewChatBar;
 
@@ -77,6 +79,8 @@ public class ChatActivity extends AppCompatActivity {
     ViewChatBar chatbar;
     ImageButton btnthemanh;
     SwipeRefreshLayout swipeRefreshLayout;
+    Userinfo userinfo;
+    Usersession usersession;
 
 
     ArrayList<Message> mangchat;
@@ -181,20 +185,19 @@ public class ChatActivity extends AppCompatActivity {
 
             room_name=getIntent().getExtras().get("from_user_id").toString();
              filepath=data.getData();
-            rootmessen=FirebaseDatabase.getInstance().getReference().child("MessageSeen").child(room_name);
+            rootmessen=FirebaseDatabase.getInstance().getReference().child(userinfo.getKeyUserid()).child("MessageSeen").child(room_name);
             //curent send mess
-            final DatabaseReference db=FirebaseDatabase.getInstance().getReference().child("OnlineMess").child(room_name);
+            final DatabaseReference db=FirebaseDatabase.getInstance().getReference().child(userinfo.getKeyUserid()).child("OnlineMess").child(room_name);
 
 
             try{
-
                 Bitmap bitmap= MediaStore.Images.Media.getBitmap(getContentResolver(),filepath);
                 if(filepath!=null){
                     final ProgressDialog progressDialog= new ProgressDialog(this);
                     progressDialog.setTitle("Uploading...");
                     progressDialog.show();
 
-                    StorageReference ref=mStoragethemanh.child("MessageSeen").child(room_name+"/"+ UUID.randomUUID().toString());
+                    StorageReference ref=mStoragethemanh.child(userinfo.getKeyUserid()).child("MessageSeen").child(room_name+"/"+ UUID.randomUUID().toString());
                     ref.putFile(filepath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -262,34 +265,35 @@ public class ChatActivity extends AppCompatActivity {
 
     private void Getcoutunreadmess() {
 
-        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("OnlineMess");
+        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child(userinfo.getKeyUserid()).child("OnlineMess");
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                int questionsolved = 0;
-                int a;
-                for(DataSnapshot snapShot   :dataSnapshot.getChildren()){
+                if (dataSnapshot.exists()) {
+                    int questionsolved = 0;
+                    int a;
+                    for (DataSnapshot snapShot : dataSnapshot.getChildren()) {
 
-                    String checkCorrectAnswer = snapShot.child("seen").getValue(String.class);
-                    String checkname=snapShot.child("name").getValue(String.class);
-                    if (checkCorrectAnswer.equals("false") && !checkname.equals(room_name) ) {
+                        String checkCorrectAnswer = snapShot.child("seen").getValue(String.class);
+                        String checkname = snapShot.child("name").getValue(String.class);
+                        if (checkCorrectAnswer.equals("false") && !checkname.equals(room_name)) {
 
-                        questionsolved = questionsolved + 1;
+                            questionsolved = questionsolved + 1;
+
+                        }
+                        //  a=questionsolved;
 
                     }
-                  //  a=questionsolved;
 
+                    //    CheckinternetToat.toastcheckinternet(ChatActivity.this,"a:"+a +"b:"+questionsolved);
+                    tvbagecout.setText(String.valueOf(questionsolved));
+                    if (tvbagecout.getText().equals("0")) {
+                        tvbagecout.setVisibility(View.INVISIBLE);
+                    } else {
+                        tvbagecout.setVisibility(View.VISIBLE);
+                    }
+                    // CheckinternetToat.toastcheckinternet(ChatActivity.this,String.valueOf(questionsolved));
                 }
-
-            //    CheckinternetToat.toastcheckinternet(ChatActivity.this,"a:"+a +"b:"+questionsolved);
-                tvbagecout.setText(String.valueOf(questionsolved));
-                if(tvbagecout.getText().equals("0")){
-                    tvbagecout.setVisibility(View.INVISIBLE);
-                }
-                else{
-                    tvbagecout.setVisibility(View.VISIBLE);
-                }
-               // CheckinternetToat.toastcheckinternet(ChatActivity.this,String.valueOf(questionsolved));
             }
 
             @Override
@@ -307,9 +311,9 @@ public class ChatActivity extends AppCompatActivity {
         toolbartitle.setText(room_name);
        // toolbarmhchat.setTitle(room_name);
         //lay data trong room
-        rootmessen=FirebaseDatabase.getInstance().getReference().child("MessageSeen").child(room_name);
+        rootmessen=FirebaseDatabase.getInstance().getReference().child(userinfo.getKeyUserid()).child("MessageSeen").child(room_name);
         //curent send mess
-        final DatabaseReference db=FirebaseDatabase.getInstance().getReference().child("OnlineMess").child(room_name);
+        final DatabaseReference db=FirebaseDatabase.getInstance().getReference().child(userinfo.getKeyUserid()).child("OnlineMess").child(room_name);
 
         chatbar.setSendClickListener(new View.OnClickListener() {
             @Override
@@ -349,10 +353,10 @@ public class ChatActivity extends AppCompatActivity {
 
 
         databaseUsermessChat=FirebaseDatabase.getInstance();
-        databaseUsermessChatreference=databaseUsermessChat.getReference("MessageSeen").child(room_name);
+        databaseUsermessChatreference=databaseUsermessChat.getReference(userinfo.getKeyUserid()).child("MessageSeen").child(room_name);
 
         databaseUsermessMain=FirebaseDatabase.getInstance();
-        databaseUsermessChatreferenceMain=databaseUsermessMain.getReference("OnlineMess").child(room_name);
+        databaseUsermessChatreferenceMain=databaseUsermessMain.getReference(userinfo.getKeyUserid()).child("OnlineMess").child(room_name);
 
 
         updateList();
@@ -386,7 +390,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void getOnlinecheck() {
-        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("OnlineMess").child(room_name);
+        final DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child(userinfo.getKeyUserid()).child("OnlineMess").child(room_name);
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -679,11 +683,13 @@ public class ChatActivity extends AppCompatActivity {
     public void onBackPressed() {
 
         finish();
+        overridePendingTransition(R.anim.anim_slide_in_right,R.anim.anim_slide_out_right);
         return;
     }
 
     private void Anhxa() {
 
+        userinfo=new Userinfo(this);
         recyclerViewnhantin=(RecyclerView) findViewById(R.id.rclmainchat);
         listViewmenutinnhan=(ListView)findViewById(R.id.lvmenutinnhan);
         swipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.refreshlayout);
@@ -712,8 +718,8 @@ public class ChatActivity extends AppCompatActivity {
 
 
         databaseUsermessMain=FirebaseDatabase.getInstance();
-        databaseUsermessMainreference=databaseUsermessMain.getReference("OnlineMess");
-        databaseUsermessMainreferenceMessagedelete=FirebaseDatabase.getInstance().getReference("MessageSeen");
+        databaseUsermessMainreference=databaseUsermessMain.getReference(userinfo.getKeyUserid()).child("OnlineMess");
+        databaseUsermessMainreferenceMessagedelete=FirebaseDatabase.getInstance().getReference(userinfo.getKeyUserid()).child("MessageSeen");
 
 
 

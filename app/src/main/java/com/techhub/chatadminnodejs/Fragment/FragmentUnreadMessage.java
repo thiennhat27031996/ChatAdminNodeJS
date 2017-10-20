@@ -21,6 +21,7 @@ import com.techhub.chatadminnodejs.Adapter.MessageSeenAdapter;
 import com.techhub.chatadminnodejs.ChatActivity;
 import com.techhub.chatadminnodejs.ClassUse.CheckinternetToat;
 import com.techhub.chatadminnodejs.OBJ.MessageSeenModel;
+import com.techhub.chatadminnodejs.Pref.Userinfo;
 import com.techhub.chatadminnodejs.R;
 
 import java.util.ArrayList;
@@ -33,12 +34,13 @@ import java.util.List;
 public class FragmentUnreadMessage extends Fragment {
     private LinearLayout lnhavemessage;
     private RelativeLayout lnnomessage;
+    private Userinfo userinfo;
 
     private ListView listviewUserunreadmess;
     private List<MessageSeenModel> resultMessageSeenmodel;
     private MessageSeenAdapter messageSeenAdapter;
-    private FirebaseDatabase databaseUsermessMain=FirebaseDatabase.getInstance();
-    private DatabaseReference databaseUsermessMainreference=databaseUsermessMain.getReference("OnlineMess");;
+    private FirebaseDatabase databaseUsermessMain;
+    private DatabaseReference databaseUsermessMainreference;
 
 
     @Nullable
@@ -59,6 +61,7 @@ public class FragmentUnreadMessage extends Fragment {
 
 
     private void Anhxa(View view) {
+        userinfo =new Userinfo(getContext());
         listviewUserunreadmess=(ListView)view.findViewById(R.id.lvuserunread);
         lnhavemessage=(LinearLayout)view.findViewById(R.id.lnhavemessageunread);
         lnnomessage=(RelativeLayout)view.findViewById(R.id.lnnohavemessageunread);
@@ -68,6 +71,8 @@ public class FragmentUnreadMessage extends Fragment {
 
         //databaseUsermessMain
         //databaseUsermessMainreference
+        databaseUsermessMain=FirebaseDatabase.getInstance();
+        databaseUsermessMainreference=databaseUsermessMain.getReference(userinfo.getKeyUserid()).child("OnlineMess");;
 
 
 
@@ -98,24 +103,24 @@ public class FragmentUnreadMessage extends Fragment {
         databaseUsermessMainreference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                if(dataSnapshot.exists()) {
 
 
+                    String checkCorrectAnsweroffline = dataSnapshot.child("online").getValue(String.class);
 
-                String checkCorrectAnsweroffline = dataSnapshot.child("online").getValue(String.class);
-
-                String checkCorrectAnswer = dataSnapshot.child("seen").getValue(String.class);
-                if (checkCorrectAnswer.equals("false") && checkCorrectAnsweroffline.equals("online")) {
-                    //CheckinternetToat.toastcheckinternet(MainActivity.this,snapShot.getKey());
-                    resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
-                    messageSeenAdapter.notifyDataSetChanged();
-                }
-                if(resultMessageSeenmodel.size()==0){
-                    lnnomessage.setVisibility(View.VISIBLE);
-                    lnhavemessage.setVisibility(View.GONE);
-                }
-                else{
-                    lnnomessage.setVisibility(View.GONE);
-                    lnhavemessage.setVisibility(View.VISIBLE);
+                    String checkCorrectAnswer = dataSnapshot.child("seen").getValue(String.class);
+                    if (checkCorrectAnswer.equals("false") && checkCorrectAnsweroffline.equals("online")) {
+                        //CheckinternetToat.toastcheckinternet(MainActivity.this,snapShot.getKey());
+                        resultMessageSeenmodel.add(dataSnapshot.getValue(MessageSeenModel.class));
+                        messageSeenAdapter.notifyDataSetChanged();
+                    }
+                    if (resultMessageSeenmodel.size() == 0) {
+                        lnnomessage.setVisibility(View.VISIBLE);
+                        lnhavemessage.setVisibility(View.GONE);
+                    } else {
+                        lnnomessage.setVisibility(View.GONE);
+                        lnhavemessage.setVisibility(View.VISIBLE);
+                    }
                 }
 
 
