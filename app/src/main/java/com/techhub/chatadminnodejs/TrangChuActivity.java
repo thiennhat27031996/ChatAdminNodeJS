@@ -1,5 +1,7 @@
 package com.techhub.chatadminnodejs;
 
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -8,6 +10,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +21,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.daasuu.bl.BubbleLayout;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +30,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.techhub.chatadminnodejs.Adapter.FragmentAdapter;
 import com.techhub.chatadminnodejs.Adapter.FragmentofflineAdapter;
 import com.techhub.chatadminnodejs.Adapter.ManuAdapter;
@@ -212,6 +218,30 @@ public class TrangChuActivity extends AppCompatActivity {
     }
     private void getTokenid() {
 
+    }
+    @Override
+    public void onBackPressed() {
+
+        final AlertDialog.Builder builder=new AlertDialog.Builder(TrangChuActivity.this);
+        builder.setTitle("Confirm");
+        builder.setMessage("Are you sure you want to delete the selected item?");
+
+        builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(final DialogInterface dialog, int which) {
+                        finishAffinity();;
+            }
+
+        });
+        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alert=builder.create();
+        alert.show();
+        return;
     }
 
     private void Anhxa() {

@@ -15,30 +15,35 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
-        mavenCentral()
+        mavenLocal()
         maven {
-            url 'https://maven.google.com'
+            url 'https://maven.fabric.io/public'
         }
-        maven {
-            url 'http://dl.bintray.com/hugoluna5/maven'
+            jcenter()
+            mavenCentral()
+            maven {
+                url 'https://maven.google.com'
+            }
+            maven {
+                url 'http://dl.bintray.com/hugoluna5/maven'
+            }
+
+
         }
-
-
-
     }
-}
 
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}
-configurations.all {
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        def requested = details.requested
-        if (requested.group == 'com.android.support') {
-            if (!requested.name.startsWith("multidex")) {
-                details.useVersion '25.3.0'
+    task clean(type: Delete) {
+        delete rootProject.buildDir
+    }
+    configurations.all {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            def requested = details.requested
+            if (requested.group == 'com.android.support') {
+                if (!requested.name.startsWith("multidex")) {
+                    details.useVersion '25.3.0'
+                }
             }
         }
     }
-}
+
